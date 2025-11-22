@@ -6,7 +6,9 @@ $ErrorActionPreference = "Stop"
 Write-Host "`n=== Finishing StockMaster Deployment ===`n" -ForegroundColor Cyan
 
 # Database and Redis URLs (from your input)
-$DATABASE_URL = "postgres://postgres.sfafrxescitdxjxartnl:OVJPPh1MmW3Mb2AW@aws-1-ap-south-1.pooler.supabase.com:6543/postgres"
+# Using DIRECT connection (port 5432) instead of pooler (6543) for Prisma migrations
+$DATABASE_URL_POOLER = "postgres://postgres.sfafrxescitdxjxartnl:OVJPPh1MmW3Mb2AW@aws-1-ap-south-1.pooler.supabase.com:6543/postgres"
+$DATABASE_URL_DIRECT = "postgres://postgres.sfafrxescitdxjxartnl:OVJPPh1MmW3Mb2AW@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
 $REDIS_URL = "redis://default:zOWU5NGQ5MnAyMjQ4NzY@modest-jawfish-24876.upstash.io:6379"
 $BACKEND_URL = "https://backend-6tbd3v3hq-manas-choksis-projects-ed92c8ab.vercel.app"
 
@@ -14,10 +16,10 @@ Write-Host "[1/4] Updating backend .env file..." -ForegroundColor Yellow
 
 cd backend
 
-# Update .env file with correct DATABASE_URL
+# Update .env file with correct DATABASE_URL (use pooler for app, direct for migrations)
 $envContent = @"
-# Database
-DATABASE_URL="$DATABASE_URL"
+# Database (use pooler for production)
+DATABASE_URL="$DATABASE_URL_POOLER"
 
 # Redis
 REDIS_URL="$REDIS_URL"
@@ -54,13 +56,39 @@ Write-Host "[SUCCESS] Prisma Client generated!`n" -ForegroundColor Green
 
 # Step 3: Push database schema
 Write-Host "[3/4] Creating database schema..." -ForegroundColor Yellow
-Write-Host "This may take 30-60 seconds...`n" -ForegroundColor Cyan
+Write-Host "Using direct connection for faster migration...`n" -ForegroundColor Cyan
 
-# Set environment variable and run
-$env:DATABASE_URL = $DATABASE_URL
-npx prisma db push --accept-data-loss --skip-generate
+# Try direct connection first (faster for migrations)
+$env:DATABASE_URL = $DATABASE_URL_DIRECT
 
-Write-Host "`n[SUCCESS] Database schema created!`n" -ForegroundColor Green
+Write-Host "Attempting database connection..." -ForegroundColor Yellow
+$timeout = 30
+$job = Start-Job -ScriptBlock {
+    param($dbUrl)
+    $env:DATABASE_URL = $dbUrl
+    Set-Location $using:PWD
+    npx prisma db push --accept-data-loss --skip-generate --force-reset 2>&1
+} -ArgumentList $DATABASE_URL_DIRECT
+
+try {
+    $result = Wait-Job -Job $job -Timeout $timeout | Receive-Job
+    if ($job.State -eq "Completed") {
+        Write-Host "`n[SUCCESS] Database schema created!`n" -ForegroundColor Green
+    } else {
+        Write-Host "[WARNING] Migration timed out, trying alternative method...`n" -ForegroundColor Yellow
+        # Try with pooler connection
+        $env:DATABASE_URL = $DATABASE_URL_POOLER
+        npx prisma db push --accept-data-loss --skip-generate
+        Write-Host "`n[SUCCESS] Database schema created!`n" -ForegroundColor Green
+    }
+} catch {
+    Write-Host "[ERROR] Migration failed. Trying pooler connection...`n" -ForegroundColor Red
+    $env:DATABASE_URL = $DATABASE_URL_POOLER
+    npx prisma db push --accept-data-loss --skip-generate
+    Write-Host "`n[SUCCESS] Database schema created!`n" -ForegroundColor Green
+} finally {
+    Remove-Job -Job $job -Force -ErrorAction SilentlyContinue
+}
 
 # Step 4: Seed database
 Write-Host "[4/4] Seeding database with sample data..." -ForegroundColor Yellow
