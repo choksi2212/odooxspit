@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import { wsClient } from '@/lib/ws-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -64,6 +65,26 @@ export default function StockPage() {
     refetch();
     toast.success('Stock data refreshed');
   };
+
+  // Listen to real-time stock updates
+  useEffect(() => {
+    const unsubscribeStock = wsClient.on('stock.levelChanged', () => {
+      // Refetch stock data when any stock level changes
+      refetch();
+    });
+
+    const unsubscribeOperation = wsClient.on('operation.statusChanged', (data: any) => {
+      // Refetch stock when operations are completed (DONE status)
+      if (data.newStatus === 'DONE') {
+        refetch();
+      }
+    });
+
+    return () => {
+      unsubscribeStock();
+      unsubscribeOperation();
+    };
+  }, [refetch]);
 
   // Calculate free to use (on hand - reserved)
   // For now, assuming all stock is free to use (no reservations)

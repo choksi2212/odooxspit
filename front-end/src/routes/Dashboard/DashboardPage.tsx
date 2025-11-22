@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { wsClient } from '@/lib/ws-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,7 @@ interface StatusCardData {
 }
 
 export default function DashboardPage() {
+  const queryClient = useQueryClient();
   const [kpis, setKpis] = useState<DashboardKpis | null>(null);
   const [receiptsData, setReceiptsData] = useState<StatusCardData>({ late: 0, waiting: 0, ready: 0, toReceive: 0 });
   const [deliveriesData, setDeliveriesData] = useState<StatusCardData>({ late: 0, waiting: 0, ready: 0, toDeliver: 0 });
@@ -46,12 +47,25 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Subscribe to real-time dashboard updates
-    const unsubscribe = wsClient.on('dashboard.kpisUpdated', (data) => {
-      setKpis(data.kpis);
+    const unsubscribeDashboard = wsClient.on('dashboard.kpisUpdated', (data: any) => {
+      setKpis(data);
+    });
+
+    // Also refetch on stock changes
+    const unsubscribeStock = wsClient.on('stock.levelChanged', () => {
+      // Refetch dashboard data
+      queryClient.invalidateQueries({ queryKey: ['dashboard-kpis'] });
+    });
+
+    // Refetch on operation status changes
+    const unsubscribeOperation = wsClient.on('operation.statusChanged', () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard-kpis'] });
     });
 
     return () => {
-      unsubscribe();
+      unsubscribeDashboard();
+      unsubscribeStock();
+      unsubscribeOperation();
     };
   }, []);
 

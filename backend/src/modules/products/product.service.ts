@@ -62,46 +62,31 @@ export class ProductService {
     // Calculate current stock for each product
     const productsWithStock = await Promise.all(
       products.map(async (product) => {
-        // Build stock movement filter
-        const movementWhere: any = { productId: product.id };
-        
-        // If warehouse or location filter is provided, filter stock movements
-        if (filters.locationId) {
-          movementWhere.OR = [
-            { locationToId: filters.locationId },
-            { locationFromId: filters.locationId },
-          ];
-        } else if (filters.warehouseId) {
-          // Get all locations in this warehouse
-          const warehouseLocations = await prisma.location.findMany({
-            where: { warehouseId: filters.warehouseId },
-            select: { id: true },
-          });
-          const locationIds = warehouseLocations.map(l => l.id);
-          
-          movementWhere.OR = [
-            { locationToId: { in: locationIds } },
-            { locationFromId: { in: locationIds } },
-          ];
-        }
-
+        // Get all movements for this product
         const movements = await prisma.stockMovement.findMany({
-          where: movementWhere,
-          select: { quantityDelta: true, locationToId: true, locationFromId: true },
+          where: { productId: product.id },
+          select: { 
+            quantityDelta: true, 
+            locationToId: true, 
+            locationFromId: true,
+            locationTo: { select: { warehouseId: true } },
+            locationFrom: { select: { warehouseId: true } },
+          },
         });
 
         let totalStock = 0;
         const stockByLocation = new Map<string, number>();
 
+        // Calculate stock for each location
         for (const movement of movements) {
-          if (movement.locationToId && (!filters.locationId || movement.locationToId === filters.locationId)) {
+          if (movement.locationToId) {
             const current = stockByLocation.get(movement.locationToId) || 0;
             stockByLocation.set(
               movement.locationToId,
               current + parseFloat(movement.quantityDelta.toString())
             );
           }
-          if (movement.locationFromId && (!filters.locationId || movement.locationFromId === filters.locationId)) {
+          if (movement.locationFromId) {
             const current = stockByLocation.get(movement.locationFromId) || 0;
             stockByLocation.set(
               movement.locationFromId,
@@ -110,10 +95,25 @@ export class ProductService {
           }
         }
 
-        // If location filter is applied, only count that location's stock
+        // Apply filters to calculate total stock
         if (filters.locationId) {
+          // Specific location: only count that location's stock
           totalStock = stockByLocation.get(filters.locationId) || 0;
+        } else if (filters.warehouseId) {
+          // Specific warehouse: sum stock from all locations in that warehouse
+          const warehouseLocations = await prisma.location.findMany({
+            where: { warehouseId: filters.warehouseId },
+            select: { id: true },
+          });
+          const locationIds = new Set(warehouseLocations.map(l => l.id));
+          
+          for (const [locationId, qty] of stockByLocation.entries()) {
+            if (locationIds.has(locationId)) {
+              totalStock += qty;
+            }
+          }
         } else {
+          // No filter: sum all stock
           totalStock = Array.from(stockByLocation.values()).reduce((sum, qty) => sum + qty, 0);
         }
 
