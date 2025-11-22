@@ -20,6 +20,7 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:reset": "prisma migrate reset --force",
     "add-stock": "tsx scripts/add-diverse-stock.ts",
+    "fix-stock": "tsx scripts/fix-warehouse-stock.ts",
     "setup:db": "node scripts/setup-db.cjs",
     "setup:interactive": "node scripts/interactive-setup.cjs",
     "test:connection": "node scripts/test-db-connection.cjs"
