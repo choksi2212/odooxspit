@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  Package,
   LayoutDashboard,
   FileText,
   TruckIcon,
@@ -79,9 +78,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <header className="border-b bg-card sticky top-0 z-50">
         <div className="flex h-16 items-center px-4 gap-4">
           <Link to="/" className="flex items-center gap-2 font-semibold">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src="/logoo.png" alt="StockMaster Logo" className="h-10 w-10 object-contain" />
             <span className="text-lg">StockMaster</span>
           </Link>
 

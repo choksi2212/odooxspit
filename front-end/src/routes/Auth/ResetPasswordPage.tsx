@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ResetPasswordPage() {
@@ -83,9 +83,7 @@ export default function ResetPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
-            <div className="h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
-              <Package className="h-6 w-6 text-primary-foreground" />
-            </div>
+            <img src="/logoo.png" alt="StockMaster Logo" className="h-20 w-20 object-contain" />
           </div>
           <div>
             <CardTitle className="text-2xl">Reset Password</CardTitle>
