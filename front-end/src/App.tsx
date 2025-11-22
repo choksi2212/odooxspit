@@ -28,6 +28,7 @@ import ProductsPage from "@/routes/Products/ProductsPage";
 import MoveHistoryPage from "@/routes/MoveHistory/MoveHistoryPage";
 import WarehousesPage from "@/routes/Settings/WarehousesPage";
 import LocationsPage from "@/routes/Settings/LocationsPage";
+import ProfilePage from "@/routes/ProfilePage";
 
 import NotFound from "./pages/NotFound";
 
@@ -102,6 +103,9 @@ function AppRoutes() {
       
       {/* Move History */}
       <Route path="/move-history" element={<ProtectedRoute><MoveHistoryPage /></ProtectedRoute>} />
+      
+      {/* Profile */}
+      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       
       {/* Settings */}
       <Route path="/settings/warehouses" element={<ProtectedRoute><WarehousesPage /></ProtectedRoute>} />
