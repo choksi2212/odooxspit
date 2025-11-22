@@ -25,6 +25,7 @@ import TransferDetailPage from "@/routes/Operations/TransferDetailPage";
 import AdjustmentsListPage from "@/routes/Operations/AdjustmentsListPage";
 import AdjustmentDetailPage from "@/routes/Operations/AdjustmentDetailPage";
 import ProductsPage from "@/routes/Products/ProductsPage";
+import StockPage from "@/routes/Stock/StockPage";
 import MoveHistoryPage from "@/routes/MoveHistory/MoveHistoryPage";
 import WarehousesPage from "@/routes/Settings/WarehousesPage";
 import LocationsPage from "@/routes/Settings/LocationsPage";
@@ -100,6 +101,9 @@ function AppRoutes() {
       
       {/* Products */}
       <Route path="/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
+      
+      {/* Stock */}
+      <Route path="/stock" element={<ProtectedRoute><StockPage /></ProtectedRoute>} />
       
       {/* Move History */}
       <Route path="/move-history" element={<ProtectedRoute><MoveHistoryPage /></ProtectedRoute>} />

@@ -9,6 +9,7 @@ import {
   ArrowLeftRight,
   FileEdit,
   Box,
+  Warehouse,
   History,
   Settings,
   User,
@@ -43,6 +44,7 @@ const navigation = [
     ],
   },
   { name: 'Products', href: '/products', icon: Box },
+  { name: 'Stock', href: '/stock', icon: Warehouse },
   { name: 'Move History', href: '/move-history', icon: History },
   {
     name: 'Settings',

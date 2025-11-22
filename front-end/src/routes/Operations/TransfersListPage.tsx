@@ -15,11 +15,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { StatusBadge } from '@/components/Operations/StatusBadge';
-import { Plus, Search } from 'lucide-react';
+import { KanbanView } from '@/components/Operations/KanbanView';
+import { Plus, Search, List, LayoutGrid } from 'lucide-react';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+type ViewMode = 'list' | 'kanban';
 
 export default function TransfersListPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const { data: operations, isLoading, refetch } = useQuery({
     queryKey: ['operations', 'TRANSFER'],
@@ -84,6 +89,30 @@ export default function TransfersListPage() {
                 className="pl-9"
               />
             </div>
+            <div className="flex rounded-md border">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  'rounded-r-none',
+                  viewMode === 'list' && 'bg-accent'
+                )}
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  'rounded-l-none border-l',
+                  viewMode === 'kanban' && 'bg-accent'
+                )}
+                onClick={() => setViewMode('kanban')}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -93,6 +122,8 @@ export default function TransfersListPage() {
             <div className="text-center py-8 text-muted-foreground">
               No transfers found. Create your first transfer to get started.
             </div>
+          ) : viewMode === 'kanban' ? (
+            <KanbanView operations={filteredOperations} basePath="/operations/transfers" />
           ) : (
             <div className="rounded-md border">
               <Table>
