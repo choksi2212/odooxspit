@@ -1,7 +1,6 @@
-import { FastifyInstance } from 'fastify';
-import { SocketStream } from '@fastify/websocket';
+import { FastifyInstance, FastifyRequest } from 'fastify';
+import { WebSocket } from 'ws';
 import { redisSubClient } from '../../db/redis.js';
-import { IncomingMessage } from 'http';
 
 /**
  * WebSocket Handler
@@ -9,7 +8,7 @@ import { IncomingMessage } from 'http';
  */
 
 interface WSClient {
-  socket: SocketStream;
+  socket: WebSocket;
   topics: Set<string>;
   userId?: string;
 }
@@ -25,7 +24,7 @@ export function setupWebSocketHandler(fastify: FastifyInstance) {
   if (!isSubscribed) {
     redisSubClient.subscribe('stockmaster:events', (err) => {
       if (err) {
-        fastify.log.error('Failed to subscribe to Redis channel:', err);
+        fastify.log.error({ err }, 'Failed to subscribe to Redis channel');
       } else {
         fastify.log.info('Subscribed to stockmaster:events channel');
         isSubscribed = true;
@@ -39,19 +38,21 @@ export function setupWebSocketHandler(fastify: FastifyInstance) {
           const event = JSON.parse(message);
           broadcastEvent(event);
         } catch (error) {
-          fastify.log.error('Failed to parse Redis message:', error);
+          fastify.log.error({ error }, 'Failed to parse Redis message');
         }
       }
     });
   }
 
   // WebSocket route
-  fastify.get('/ws', { websocket: true }, (socket: SocketStream, req: IncomingMessage) => {
+  fastify.get('/ws', { websocket: true }, (connection, req: FastifyRequest) => {
+    const socket = connection.socket;
     const clientId = generateClientId();
     
     // Extract token from query string
-    const url = new URL(req.url || '', `http://${req.headers.host}`);
-    const token = url.searchParams.get('token');
+    const token = req.query && typeof req.query === 'object' && 'token' in req.query 
+      ? String(req.query.token) 
+      : undefined;
     
     let userId: string | undefined;
 
@@ -61,7 +62,7 @@ export function setupWebSocketHandler(fastify: FastifyInstance) {
         const decoded = fastify.jwt.decode(token) as { id?: string };
         userId = decoded?.id;
       } catch (error) {
-        fastify.log.warn('Invalid WebSocket token:', error);
+        fastify.log.warn({ error }, 'Invalid WebSocket token');
       }
     }
 
@@ -92,7 +93,7 @@ export function setupWebSocketHandler(fastify: FastifyInstance) {
         const message = JSON.parse(data.toString());
         handleClientMessage(clientId, message, fastify);
       } catch (error) {
-        fastify.log.error('Failed to parse WebSocket message:', error);
+        fastify.log.error({ error }, 'Failed to parse WebSocket message');
       }
     });
 
@@ -102,8 +103,8 @@ export function setupWebSocketHandler(fastify: FastifyInstance) {
       fastify.log.info(`WebSocket client disconnected: ${clientId}`);
     });
 
-    socket.on('error', (error) => {
-      fastify.log.error(`WebSocket error for client ${clientId}:`, error);
+    socket.on('error', (error: Error) => {
+      fastify.log.error({ error, clientId }, 'WebSocket error for client');
       clients.delete(clientId);
     });
 
@@ -137,7 +138,7 @@ function handleClientMessage(
     case 'subscribe':
       if (message.topics && Array.isArray(message.topics)) {
         message.topics.forEach((topic) => client.topics.add(topic));
-        fastify.log.info(`Client ${clientId} subscribed to topics:`, message.topics);
+        fastify.log.info({ clientId, topics: message.topics }, 'Client subscribed to topics');
         
         client.socket.send(
           JSON.stringify({
@@ -151,7 +152,7 @@ function handleClientMessage(
     case 'unsubscribe':
       if (message.topics && Array.isArray(message.topics)) {
         message.topics.forEach((topic) => client.topics.delete(topic));
-        fastify.log.info(`Client ${clientId} unsubscribed from topics:`, message.topics);
+        fastify.log.info({ clientId, topics: message.topics }, 'Client unsubscribed from topics');
         
         client.socket.send(
           JSON.stringify({
@@ -167,7 +168,7 @@ function handleClientMessage(
       break;
 
     default:
-      fastify.log.warn(`Unknown message type from client ${clientId}:`, message.type);
+      fastify.log.warn({ clientId, messageType: message.type }, 'Unknown message type from client');
   }
 }
 
