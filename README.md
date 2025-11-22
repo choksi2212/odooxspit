@@ -4,6 +4,10 @@ A modern, production-ready full-stack inventory management system built with Rea
 
 **🎉 Status: Production Ready - All Features Implemented & Working**
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/choksi2212/odooxspit)
+
+> **Note**: This button deploys ONLY the frontend to Vercel. Backend must be deployed separately to Railway/Render. See [DEPLOYMENT.md](DEPLOYMENT.md) for complete setup.
+
 ## ✨ Features
 
 ### Core Functionality
@@ -67,7 +71,35 @@ Before running StockMaster, ensure you have:
 2. **PostgreSQL** - [Download](https://www.postgresql.org/download/)
 3. **Redis** (or Memurai for Windows) - [Memurai Download](https://www.memurai.com/)
 
-## 🚀 Quick Start
+## 🚀 Deployment
+
+**For Production Deployment**, see [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
+**Quick Summary:**
+- ✅ **Frontend** → Deploy to Vercel (configured with `vercel.json`)
+- ✅ **Backend** → Deploy to Railway/Render (requires PostgreSQL + Redis)
+- ⚠️ **Important**: Vercel is NOT suitable for backend due to serverless limitations
+
+### Vercel Deployment (Frontend Only)
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy frontend
+cd front-end
+vercel
+
+# Set environment variables in Vercel dashboard:
+# VITE_API_URL=https://your-backend-url.railway.app
+# VITE_WS_URL=wss://your-backend-url.railway.app
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete setup including backend deployment to Railway, environment variables, and production configuration.
+
+---
+
+## 🚀 Quick Start (Local Development)
 
 ### Option 1: One-Command Start (Recommended)
 
@@ -463,6 +495,7 @@ npm install
 
 ## 📖 Documentation
 
+- 🚀 [Deployment Guide](DEPLOYMENT.md) - **Deploy to Vercel & Railway**
 - 📘 [Complete API Documentation](backend/README.md)
 - 📧 [Email Setup Guide](backend/EMAIL_SETUP_GUIDE.md) - Configure OTP emails
 - 🐛 [Troubleshooting](#-troubleshooting) - Common issues & solutions
