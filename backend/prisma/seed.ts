@@ -62,7 +62,58 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${3} users`);
+  // Add Indian users
+  const rajesh = await prisma.user.create({
+    data: {
+      loginId: 'rajesh.kumar',
+      email: 'rajesh.kumar@stockmaster.com',
+      name: 'Rajesh Kumar',
+      role: UserRole.INVENTORY_MANAGER,
+      passwordHash,
+    },
+  });
+
+  const priya = await prisma.user.create({
+    data: {
+      loginId: 'priya.sharma',
+      email: 'priya.sharma@stockmaster.com',
+      name: 'Priya Sharma',
+      role: UserRole.WAREHOUSE_STAFF,
+      passwordHash,
+    },
+  });
+
+  const amit = await prisma.user.create({
+    data: {
+      loginId: 'amit.patel',
+      email: 'amit.patel@stockmaster.com',
+      name: 'Amit Patel',
+      role: UserRole.WAREHOUSE_STAFF,
+      passwordHash,
+    },
+  });
+
+  const sneha = await prisma.user.create({
+    data: {
+      loginId: 'sneha.reddy',
+      email: 'sneha.reddy@stockmaster.com',
+      name: 'Sneha Reddy',
+      role: UserRole.INVENTORY_MANAGER,
+      passwordHash,
+    },
+  });
+
+  const vikram = await prisma.user.create({
+    data: {
+      loginId: 'vikram.singh',
+      email: 'vikram.singh@stockmaster.com',
+      name: 'Vikram Singh',
+      role: UserRole.WAREHOUSE_STAFF,
+      passwordHash,
+    },
+  });
+
+  console.log(`✅ Created ${8} users`);
 
   // Create warehouses
   console.log('Creating warehouses...');
@@ -82,7 +133,32 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${2} warehouses`);
+  // Indian warehouses
+  const mumbaiWarehouse = await prisma.warehouse.create({
+    data: {
+      name: 'Mumbai Distribution Center',
+      shortCode: 'MDC',
+      address: 'Plot No. 45, MIDC Industrial Area, Andheri East, Mumbai, Maharashtra 400093',
+    },
+  });
+
+  const delhiWarehouse = await prisma.warehouse.create({
+    data: {
+      name: 'Delhi Central Warehouse',
+      shortCode: 'DCW',
+      address: 'Sector 8, Rohini Industrial Area, Delhi, NCR 110085',
+    },
+  });
+
+  const bangaloreWarehouse = await prisma.warehouse.create({
+    data: {
+      name: 'Bangalore Tech Hub',
+      shortCode: 'BTH',
+      address: 'Whitefield Industrial Estate, Phase 2, Bangalore, Karnataka 560066',
+    },
+  });
+
+  console.log(`✅ Created ${5} warehouses`);
 
   // Create locations
   console.log('Creating locations...');
@@ -140,6 +216,9 @@ async function main() {
     prisma.productCategory.create({ data: { name: 'Office Supplies' } }),
     prisma.productCategory.create({ data: { name: 'Furniture' } }),
     prisma.productCategory.create({ data: { name: 'Raw Materials' } }),
+    prisma.productCategory.create({ data: { name: 'Textiles' } }),
+    prisma.productCategory.create({ data: { name: 'Food & Beverage' } }),
+    prisma.productCategory.create({ data: { name: 'Pharmaceuticals' } }),
   ]);
 
   console.log(`✅ Created ${categories.length} categories`);
@@ -219,6 +298,79 @@ async function main() {
         reorderLevel: 50,
       },
     }),
+    // Indian products
+    prisma.product.create({
+      data: {
+        name: 'Cotton Fabric - Khadi',
+        sku: 'TEX-CTN-001',
+        categoryId: categories[4].id,
+        unitOfMeasure: 'Meters',
+        reorderLevel: 500,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Silk Saree Material',
+        sku: 'TEX-SLK-001',
+        categoryId: categories[4].id,
+        unitOfMeasure: 'Meters',
+        reorderLevel: 200,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Basmati Rice - 25kg',
+        sku: 'FOOD-RIC-001',
+        categoryId: categories[5].id,
+        unitOfMeasure: 'Bags',
+        reorderLevel: 100,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Masala Tea (CTC)',
+        sku: 'FOOD-TEA-001',
+        categoryId: categories[5].id,
+        unitOfMeasure: 'Kg',
+        reorderLevel: 150,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Turmeric Powder - 1kg',
+        sku: 'FOOD-TUR-001',
+        categoryId: categories[5].id,
+        unitOfMeasure: 'Packets',
+        reorderLevel: 200,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Paracetamol Tablets (500mg)',
+        sku: 'PHARM-PAR-001',
+        categoryId: categories[6].id,
+        unitOfMeasure: 'Strips',
+        reorderLevel: 500,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Ayurvedic Cough Syrup',
+        sku: 'PHARM-COU-001',
+        categoryId: categories[6].id,
+        unitOfMeasure: 'Bottles',
+        reorderLevel: 100,
+      },
+    }),
+    prisma.product.create({
+      data: {
+        name: 'Hand Sanitizer - 500ml',
+        sku: 'PHARM-SAN-001',
+        categoryId: categories[6].id,
+        unitOfMeasure: 'Bottles',
+        reorderLevel: 300,
+      },
+    }),
   ]);
 
   console.log(`✅ Created ${products.length} products`);
@@ -234,7 +386,7 @@ async function main() {
       status: OperationStatus.DONE,
       warehouseToId: mainWarehouse.id,
       locationToId: locations[1].id, // Storage Area A
-      contactName: 'Supplier ABC Inc.',
+      contactName: 'Tata Electronics Ltd.',
       scheduleDate: new Date('2024-01-15'),
       createdByUserId: manager.id,
       responsibleUserId: staff.id,
@@ -271,7 +423,7 @@ async function main() {
       status: OperationStatus.DONE,
       warehouseToId: mainWarehouse.id,
       locationToId: locations[2].id, // Storage Area B
-      contactName: 'Office Supplies Co.',
+      contactName: 'Bajaj Office Solutions',
       scheduleDate: new Date('2024-01-16'),
       createdByUserId: manager.id,
       responsibleUserId: staff.id,

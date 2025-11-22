@@ -82,24 +82,24 @@ export default function DeliveryDetailPage() {
   useEffect(() => {
     if (operation) {
       setFormData({
-        contact: operation.contact || '',
-        responsible: operation.responsible || '',
+        contact: operation.contactName || '',
+        responsible: operation.responsible?.name || user?.name || '',
         scheduleDate: operation.scheduleDate ? format(new Date(operation.scheduleDate), 'yyyy-MM-dd') : '',
-        deliveryAddress: operation.deliveryAddress || '',
-        warehouseId: operation.warehouseId || '',
-        locationId: operation.locationId || '',
+        deliveryAddress: operation.deliveryAddress || operation.notes || '',
+        warehouseId: operation.warehouseFromId || '',
+        locationId: operation.locationFromId || '',
       });
       if (operation.items?.length > 0) {
         setProductLines(operation.items.map((item: any) => ({
           id: item.id || crypto.randomUUID(),
           productId: item.productId,
-          productName: item.productName,
+          productName: item.product?.name || item.productName || '',
           quantity: item.quantity,
           hasStock: item.hasStock !== false,
         })));
       }
     }
-  }, [operation]);
+  }, [operation, user]);
 
   const createMutation = useMutation({
     mutationFn: (data: any) => apiClient.createDelivery(data),
@@ -219,6 +219,10 @@ export default function DeliveryDetailPage() {
     transitionMutation.mutate(action);
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const isDone = operation?.status === 'DONE';
   const isCanceled = operation?.status === 'CANCELED';
   const isReadOnly = isDone || isCanceled;
@@ -256,19 +260,19 @@ export default function DeliveryDetailPage() {
         {!isNew && operation && (
           <div className="flex gap-2">
             {operation.status === 'DRAFT' && (
-              <Button onClick={() => handleTransition('validate')} variant="default">
+              <Button onClick={() => handleTransition('mark_ready')} variant="default">
                 <Check className="mr-2 h-4 w-4" />
                 Validate
               </Button>
             )}
             {operation.status === 'WAITING' && (
-              <Button onClick={() => handleTransition('ready')} variant="default">
+              <Button onClick={() => handleTransition('mark_ready')} variant="default">
                 <Check className="mr-2 h-4 w-4" />
                 Mark as Ready
               </Button>
             )}
             {operation.status === 'READY' && (
-              <Button onClick={() => handleTransition('done')} variant="default">
+              <Button onClick={() => handleTransition('mark_done')} variant="default">
                 <Check className="mr-2 h-4 w-4" />
                 Mark as Done
               </Button>
@@ -279,7 +283,7 @@ export default function DeliveryDetailPage() {
                 Cancel
               </Button>
             )}
-            <Button variant="outline">
+            <Button variant="outline" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Print
             </Button>
