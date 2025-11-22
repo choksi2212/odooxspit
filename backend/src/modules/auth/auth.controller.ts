@@ -242,6 +242,22 @@ export class AuthController {
   }
 
   /**
+   * Update user profile
+   */
+  async updateProfile(
+    request: FastifyRequest<{
+      Body: { name?: string; email?: string };
+    }>,
+    reply: FastifyReply
+  ) {
+    const user = request.user as AuthUser;
+    const { name, email } = request.body;
+    const updatedUser = await authService.updateProfile(user.id, { name, email });
+
+    return reply.send({ user: updatedUser });
+  }
+
+  /**
    * Logout (revoke refresh token)
    */
   async logout(request: FastifyRequest, reply: FastifyReply) {

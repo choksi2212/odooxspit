@@ -41,8 +41,12 @@ export default function StockPage() {
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
 
   const { data: products, isLoading, refetch } = useQuery({
-    queryKey: ['products', searchTerm],
-    queryFn: () => apiClient.getProducts({ search: searchTerm }),
+    queryKey: ['products', searchTerm, selectedWarehouse, selectedLocation],
+    queryFn: () => apiClient.getProducts({ 
+      search: searchTerm,
+      warehouseId: selectedWarehouse !== 'all' ? selectedWarehouse : undefined,
+      locationId: selectedLocation !== 'all' ? selectedLocation : undefined,
+    }),
   });
 
   const { data: warehouses } = useQuery({
@@ -126,7 +130,13 @@ export default function StockPage() {
 
             <div className="space-y-2">
               <Label>Warehouse</Label>
-              <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
+              <Select 
+                value={selectedWarehouse} 
+                onValueChange={(value) => {
+                  setSelectedWarehouse(value);
+                  setSelectedLocation('all'); // Reset location when warehouse changes
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All Warehouses" />
                 </SelectTrigger>
@@ -160,6 +170,11 @@ export default function StockPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {selectedWarehouse === 'all' && (
+                <p className="text-xs text-muted-foreground">
+                  Select a warehouse first
+                </p>
+              )}
             </div>
           </div>
         </CardContent>

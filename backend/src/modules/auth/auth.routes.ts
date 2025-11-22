@@ -45,6 +45,11 @@ export default async function authRoutes(fastify: FastifyInstance) {
     handler: authController.changePassword.bind(authController),
   });
 
+  fastify.put('/profile', {
+    preHandler: [authenticate],
+    handler: authController.updateProfile.bind(authController),
+  });
+
   fastify.post('/logout', {
     preHandler: [authenticate],
     handler: authController.logout.bind(authController),

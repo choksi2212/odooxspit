@@ -18,6 +18,8 @@ export class ProductService {
     search?: string;
     categoryId?: string;
     isActive?: boolean;
+    warehouseId?: string;
+    locationId?: string;
   }) {
     const { page, limit } = parsePaginationParams(filters);
     const skip = (page - 1) * limit;
@@ -60,8 +62,31 @@ export class ProductService {
     // Calculate current stock for each product
     const productsWithStock = await Promise.all(
       products.map(async (product) => {
+        // Build stock movement filter
+        const movementWhere: any = { productId: product.id };
+        
+        // If warehouse or location filter is provided, filter stock movements
+        if (filters.locationId) {
+          movementWhere.OR = [
+            { locationToId: filters.locationId },
+            { locationFromId: filters.locationId },
+          ];
+        } else if (filters.warehouseId) {
+          // Get all locations in this warehouse
+          const warehouseLocations = await prisma.location.findMany({
+            where: { warehouseId: filters.warehouseId },
+            select: { id: true },
+          });
+          const locationIds = warehouseLocations.map(l => l.id);
+          
+          movementWhere.OR = [
+            { locationToId: { in: locationIds } },
+            { locationFromId: { in: locationIds } },
+          ];
+        }
+
         const movements = await prisma.stockMovement.findMany({
-          where: { productId: product.id },
+          where: movementWhere,
           select: { quantityDelta: true, locationToId: true, locationFromId: true },
         });
 
@@ -69,14 +94,14 @@ export class ProductService {
         const stockByLocation = new Map<string, number>();
 
         for (const movement of movements) {
-          if (movement.locationToId) {
+          if (movement.locationToId && (!filters.locationId || movement.locationToId === filters.locationId)) {
             const current = stockByLocation.get(movement.locationToId) || 0;
             stockByLocation.set(
               movement.locationToId,
               current + parseFloat(movement.quantityDelta.toString())
             );
           }
-          if (movement.locationFromId) {
+          if (movement.locationFromId && (!filters.locationId || movement.locationFromId === filters.locationId)) {
             const current = stockByLocation.get(movement.locationFromId) || 0;
             stockByLocation.set(
               movement.locationFromId,
@@ -85,7 +110,12 @@ export class ProductService {
           }
         }
 
-        totalStock = Array.from(stockByLocation.values()).reduce((sum, qty) => sum + qty, 0);
+        // If location filter is applied, only count that location's stock
+        if (filters.locationId) {
+          totalStock = stockByLocation.get(filters.locationId) || 0;
+        } else {
+          totalStock = Array.from(stockByLocation.values()).reduce((sum, qty) => sum + qty, 0);
+        }
 
         return {
           ...product,

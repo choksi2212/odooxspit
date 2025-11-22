@@ -163,6 +163,7 @@ async function main() {
   // Create locations
   console.log('Creating locations...');
   const locations = await Promise.all([
+    // Main Warehouse locations
     prisma.location.create({
       data: {
         warehouseId: mainWarehouse.id,
@@ -191,6 +192,7 @@ async function main() {
         shortCode: 'SHIP',
       },
     }),
+    // Secondary Warehouse locations
     prisma.location.create({
       data: {
         warehouseId: secondaryWarehouse.id,
@@ -203,6 +205,93 @@ async function main() {
         warehouseId: secondaryWarehouse.id,
         name: 'Storage Area 2',
         shortCode: 'ST2',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: secondaryWarehouse.id,
+        name: 'Loading Dock',
+        shortCode: 'DOCK',
+      },
+    }),
+    // Mumbai Warehouse locations
+    prisma.location.create({
+      data: {
+        warehouseId: mumbaiWarehouse.id,
+        name: 'Receiving Bay',
+        shortCode: 'RB',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: mumbaiWarehouse.id,
+        name: 'Cold Storage',
+        shortCode: 'COLD',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: mumbaiWarehouse.id,
+        name: 'Dry Goods Section',
+        shortCode: 'DRY',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: mumbaiWarehouse.id,
+        name: 'Dispatch Area',
+        shortCode: 'DISP',
+      },
+    }),
+    // Delhi Warehouse locations
+    prisma.location.create({
+      data: {
+        warehouseId: delhiWarehouse.id,
+        name: 'Main Storage',
+        shortCode: 'MS',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: delhiWarehouse.id,
+        name: 'Quality Check Zone',
+        shortCode: 'QC',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: delhiWarehouse.id,
+        name: 'Packaging Area',
+        shortCode: 'PKG',
+      },
+    }),
+    // Bangalore Warehouse locations
+    prisma.location.create({
+      data: {
+        warehouseId: bangaloreWarehouse.id,
+        name: 'Tech Products Zone',
+        shortCode: 'TECH',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: bangaloreWarehouse.id,
+        name: 'Assembly Area',
+        shortCode: 'ASM',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: bangaloreWarehouse.id,
+        name: 'Testing Lab',
+        shortCode: 'LAB',
+      },
+    }),
+    prisma.location.create({
+      data: {
+        warehouseId: bangaloreWarehouse.id,
+        name: 'Shipping Dock',
+        shortCode: 'SHIP-BLR',
       },
     }),
   ]);

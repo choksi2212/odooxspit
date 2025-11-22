@@ -89,6 +89,13 @@ class ApiClient {
     });
   }
 
+  async updateProfile(data: { name?: string; email?: string }) {
+    return this.request<{ user: any }>('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
   async requestOtp(email: string) {
     return this.request<void>('/auth/request-otp', {
       method: 'POST',

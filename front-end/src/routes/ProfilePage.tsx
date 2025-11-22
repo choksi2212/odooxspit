@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { apiClient } from '@/lib/api-client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +13,8 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -25,15 +27,25 @@ export default function ProfilePage() {
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: { name?: string; email?: string }) => apiClient.updateProfile(data),
+    onSuccess: (response) => {
+      toast.success('Profile updated successfully');
+      setUser(response.user);
+      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update profile');
+    },
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      // API call to update profile would go here
-      toast.success('Profile updated successfully');
-      setIsEditing(false);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update profile');
-    }
+    updateProfileMutation.mutate({
+      name: formData.name,
+      email: formData.email,
+    });
   };
 
   const getRoleColor = (role: string) => {
