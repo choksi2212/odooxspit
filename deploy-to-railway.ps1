@@ -30,24 +30,25 @@ function Print-Error {
 
 # Check if Railway CLI is installed
 try {
-    $null = railway --version
-    Print-Success "Railway CLI is installed!"
+    $null = npx @railway/cli --version 2>$null
+    Print-Success "Railway CLI is accessible!"
 } catch {
-    Print-Error "Railway CLI is not installed!"
-    Write-Host ""
-    Print-Info "Installing Railway CLI..."
-    npm install -g @railway/cli
-    Print-Success "Railway CLI installed!"
-    Write-Host ""
+    Print-Info "Railway CLI will be used via npx..."
+}
+
+# Set railway command (use npx for compatibility)
+function railway {
+    npx @railway/cli @args
 }
 
 # Check if user is logged in
 Print-Info "Checking Railway login status..."
 try {
-    $null = railway whoami
+    $null = railway whoami 2>$null
     Print-Success "Already logged in to Railway!"
 } catch {
     Print-Warning "Not logged in to Railway. Please login..."
+    Print-Info "A browser window will open for authentication..."
     railway login
     Print-Success "Logged in successfully!"
 }
