@@ -106,9 +106,45 @@ export class DashboardService {
       }),
     ]);
 
+    // Calculate out of stock count
+    let outOfStockCount = 0;
+    for (const product of products) {
+      const movements = await prisma.stockMovement.findMany({
+        where: { productId: product.id },
+        select: { quantityDelta: true, locationToId: true, locationFromId: true },
+      });
+
+      let totalStock = 0;
+      const stockByLocation = new Map<string, number>();
+
+      for (const movement of movements) {
+        if (movement.locationToId) {
+          const current = stockByLocation.get(movement.locationToId) || 0;
+          stockByLocation.set(
+            movement.locationToId,
+            current + parseFloat(movement.quantityDelta.toString())
+          );
+        }
+        if (movement.locationFromId) {
+          const current = stockByLocation.get(movement.locationFromId) || 0;
+          stockByLocation.set(
+            movement.locationFromId,
+            current - parseFloat(movement.quantityDelta.toString())
+          );
+        }
+      }
+
+      totalStock = Array.from(stockByLocation.values()).reduce((sum, qty) => sum + qty, 0);
+
+      if (totalStock <= 0) {
+        outOfStockCount++;
+      }
+    }
+
     const kpis = {
-      totalProductsInStock,
-      lowStockCount,
+      totalProducts: totalProductsInStock,
+      lowStock: lowStockCount,
+      outOfStock: outOfStockCount,
       pendingReceipts,
       pendingDeliveries,
       pendingTransfers,

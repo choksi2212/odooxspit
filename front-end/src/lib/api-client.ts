@@ -111,7 +111,8 @@ class ApiClient {
 
   // Warehouses
   async getWarehouses() {
-    return this.request<any[]>('/warehouses');
+    const response = await this.request<{data: any[], pagination: any}>('/warehouses');
+    return response.data;
   }
 
   async getWarehouse(id: string) {
@@ -135,7 +136,8 @@ class ApiClient {
   // Locations
   async getLocations(warehouseId?: string) {
     const query = warehouseId ? `?warehouseId=${warehouseId}` : '';
-    return this.request<any[]>(`/locations${query}`);
+    const response = await this.request<{data: any[], pagination: any}>(`/locations${query}`);
+    return response.data;
   }
 
   async createLocation(data: any) {
@@ -147,7 +149,8 @@ class ApiClient {
 
   // Products
   async getProducts() {
-    return this.request<any[]>('/products');
+    const response = await this.request<{data: any[], pagination: any}>('/products');
+    return response.data;
   }
 
   async getProduct(id: string) {
@@ -159,7 +162,8 @@ class ApiClient {
   }
 
   async getLowStockProducts() {
-    return this.request<any[]>('/products/low-stock');
+    const response = await this.request<{data: any[], pagination: any}>('/products/low-stock');
+    return response.data;
   }
 
   // Operations
@@ -184,7 +188,8 @@ class ApiClient {
       });
     }
     const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request<any>(`/operations${query}`);
+    const response = await this.request<{data: any[], pagination: any}>(`/operations${query}`);
+    return response;
   }
 
   async getOperation(id: string) {
@@ -254,7 +259,8 @@ class ApiClient {
       });
     }
     const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request<any>(`/move-history${query}`);
+    const response = await this.request<{data: any[], pagination: any}>(`/move-history${query}`);
+    return response;
   }
 
   // Offline Sync

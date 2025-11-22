@@ -57,8 +57,47 @@ export class ProductService {
       prisma.product.count({ where }),
     ]);
 
+    // Calculate current stock for each product
+    const productsWithStock = await Promise.all(
+      products.map(async (product) => {
+        const movements = await prisma.stockMovement.findMany({
+          where: { productId: product.id },
+          select: { quantityDelta: true, locationToId: true, locationFromId: true },
+        });
+
+        let totalStock = 0;
+        const stockByLocation = new Map<string, number>();
+
+        for (const movement of movements) {
+          if (movement.locationToId) {
+            const current = stockByLocation.get(movement.locationToId) || 0;
+            stockByLocation.set(
+              movement.locationToId,
+              current + parseFloat(movement.quantityDelta.toString())
+            );
+          }
+          if (movement.locationFromId) {
+            const current = stockByLocation.get(movement.locationFromId) || 0;
+            stockByLocation.set(
+              movement.locationFromId,
+              current - parseFloat(movement.quantityDelta.toString())
+            );
+          }
+        }
+
+        totalStock = Array.from(stockByLocation.values()).reduce((sum, qty) => sum + qty, 0);
+
+        return {
+          ...product,
+          currentStock: totalStock,
+          lowStockThreshold: product.reorderLevel,
+          category: product.category?.name || null,
+        };
+      })
+    );
+
     return {
-      data: products,
+      data: productsWithStock,
       pagination: {
         page,
         limit,
