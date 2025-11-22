@@ -92,16 +92,16 @@ Write-Host ""
 
 # Step 5: Set environment variables
 Print-Info "Step 5/8: Setting environment variables..."
-railway variables set NODE_ENV=production 2>&1 | Out-Null
-railway variables set PORT=4000 2>&1 | Out-Null
-railway variables set JWT_SECRET="$JWT_SECRET" 2>&1 | Out-Null
-railway variables set JWT_REFRESH_SECRET="$JWT_REFRESH_SECRET" 2>&1 | Out-Null
-railway variables set JWT_EXPIRES_IN=15m 2>&1 | Out-Null
-railway variables set JWT_REFRESH_EXPIRES_IN=7d 2>&1 | Out-Null
-railway variables set CORS_ORIGIN="http://localhost:5173" 2>&1 | Out-Null
-railway variables set RATE_LIMIT_MAX=100 2>&1 | Out-Null
-railway variables set RATE_LIMIT_WINDOW_MS=900000 2>&1 | Out-Null
-railway variables set OTP_EXPIRY_MINUTES=10 2>&1 | Out-Null
+npx @railway/cli variables --set NODE_ENV=production 2>&1 | Out-Null
+npx @railway/cli variables --set PORT=4000 2>&1 | Out-Null
+npx @railway/cli variables --set "JWT_SECRET=$JWT_SECRET" 2>&1 | Out-Null
+npx @railway/cli variables --set "JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET" 2>&1 | Out-Null
+npx @railway/cli variables --set JWT_EXPIRES_IN=15m 2>&1 | Out-Null
+npx @railway/cli variables --set JWT_REFRESH_EXPIRES_IN=7d 2>&1 | Out-Null
+npx @railway/cli variables --set "CORS_ORIGIN=http://localhost:5173" 2>&1 | Out-Null
+npx @railway/cli variables --set RATE_LIMIT_MAX=100 2>&1 | Out-Null
+npx @railway/cli variables --set RATE_LIMIT_WINDOW_MS=900000 2>&1 | Out-Null
+npx @railway/cli variables --set OTP_EXPIRY_MINUTES=10 2>&1 | Out-Null
 Print-Success "All environment variables set!"
 Print-Warning "Remember to update CORS_ORIGIN after deploying frontend!"
 Write-Host ""
