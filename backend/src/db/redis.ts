@@ -1,34 +1,48 @@
 import Redis from 'ioredis';
 import { config } from '../config/index.js';
 
+// Redis connection options
+const redisOptions = config.redis.url 
+  ? { 
+      // Use URL if provided (for Upstash, Railway, etc.)
+      host: undefined,
+      port: undefined,
+      password: undefined,
+    }
+  : {
+      // Use host/port/password if URL not provided
+      host: config.redis.host,
+      port: config.redis.port,
+      password: config.redis.password,
+    };
+
 /**
  * Redis Client for caching, rate limiting, and pub/sub
  */
-export const redisClient = new Redis({
-  host: config.redis.host,
-  port: config.redis.port,
-  password: config.redis.password,
-  retryStrategy: (times: number) => {
-    const delay = Math.min(times * 50, 2000);
-    return delay;
-  },
-  maxRetriesPerRequest: 3,
-});
+export const redisClient = new Redis(
+  config.redis.url || redisOptions.host || 'localhost',
+  {
+    ...redisOptions,
+    retryStrategy: (times: number) => {
+      const delay = Math.min(times * 50, 2000);
+      return delay;
+    },
+    maxRetriesPerRequest: 3,
+  }
+);
 
 /**
  * Redis Pub/Sub Client (separate connection for pub/sub)
  */
-export const redisPubClient = new Redis({
-  host: config.redis.host,
-  port: config.redis.port,
-  password: config.redis.password,
-});
+export const redisPubClient = new Redis(
+  config.redis.url || redisOptions.host || 'localhost',
+  redisOptions
+);
 
-export const redisSubClient = new Redis({
-  host: config.redis.host,
-  port: config.redis.port,
-  password: config.redis.password,
-});
+export const redisSubClient = new Redis(
+  config.redis.url || redisOptions.host || 'localhost',
+  redisOptions
+);
 
 // Error handling
 redisClient.on('error', (err) => {

@@ -12,14 +12,15 @@ export const config = {
     url: process.env.DATABASE_URL || 'postgresql://stockmaster:password@localhost:5432/stockmaster',
   },
   redis: {
+    url: process.env.REDIS_URL,
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
     password: process.env.REDIS_PASSWORD || undefined,
   },
   jwt: {
-    accessSecret: process.env.JWT_ACCESS_SECRET || 'your-super-secret-access-token-key',
+    accessSecret: process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || 'your-super-secret-access-token-key',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'your-super-secret-refresh-token-key',
-    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
+    accessExpiresIn: process.env.JWT_EXPIRES_IN || process.env.JWT_ACCESS_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
   cors: {
