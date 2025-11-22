@@ -663,17 +663,193 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created ${6} operations`);
+  console.log(`✅ Created ${6} initial operations`);
+
+  // Create diverse stock across all warehouses
+  console.log('Creating diverse stock across all warehouses...');
+  
+  // Define stock distribution for each product across all warehouses
+  const stockDistribution = [
+    // Laptop Computer
+    { productId: products[0].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 1, qty: 15 }, // Storage Area A
+      { warehouseId: secondaryWarehouse.id, locationIdx: 4, qty: 5 }, // Storage Area 1 (after transfer)
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 8, qty: 30 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 12, qty: 20 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 16, qty: 25 },
+    ]},
+    // Wireless Mouse
+    { productId: products[1].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 1, qty: 80 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 5, qty: 50 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 9, qty: 120 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 13, qty: 90 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 17, qty: 110 },
+    ]},
+    // USB-C Cable
+    { productId: products[2].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 2, qty: 150 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 6, qty: 100 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 10, qty: 200 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 14, qty: 180 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 18, qty: 220 },
+    ]},
+    // LED Monitor 24"
+    { productId: products[3].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 1, qty: 12 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 4, qty: 8 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 8, qty: 18 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 12, qty: 15 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 16, qty: 22 },
+    ]},
+    // Mechanical Keyboard
+    { productId: products[4].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 2, qty: 45 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 5, qty: 30 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 9, qty: 60 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 13, qty: 50 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 17, qty: 55 },
+    ]},
+    // A4 Paper (Ream)
+    { productId: products[5].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 2, qty: 40 }, // After delivery
+      { warehouseId: secondaryWarehouse.id, locationIdx: 6, qty: 80 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 10, qty: 100 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 14, qty: 120 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 18, qty: 90 },
+    ]},
+    // Ballpoint Pens (Box)
+    { productId: products[6].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 2, qty: 30 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 6, qty: 45 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 10, qty: 60 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 14, qty: 50 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 18, qty: 55 },
+    ]},
+    // Stapler
+    { productId: products[7].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 2, qty: 35 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 5, qty: 25 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 9, qty: 40 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 13, qty: 38 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 17, qty: 42 },
+    ]},
+    // Cotton Fabric - Khadi
+    { productId: products[8].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 400 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 350 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 800 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 600 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 500 },
+    ]},
+    // Silk Saree Material
+    { productId: products[9].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 150 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 120 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 300 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 250 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 280 },
+    ]},
+    // Basmati Rice - 25kg
+    { productId: products[10].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 80 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 60 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 150 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 200 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 100 },
+    ]},
+    // Masala Tea (CTC)
+    { productId: products[11].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 120 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 100 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 180 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 220 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 160 },
+    ]},
+    // Turmeric Powder - 1kg
+    { productId: products[12].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 180 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 150 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 250 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 300 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 200 },
+    ]},
+    // Paracetamol Tablets (500mg)
+    { productId: products[13].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 450 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 400 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 600 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 700 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 550 },
+    ]},
+    // Ayurvedic Cough Syrup
+    { productId: products[14].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 90 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 80 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 120 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 150 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 110 },
+    ]},
+    // Hand Sanitizer - 500ml
+    { productId: products[15].id, stocks: [
+      { warehouseId: mainWarehouse.id, locationIdx: 3, qty: 280 },
+      { warehouseId: secondaryWarehouse.id, locationIdx: 7, qty: 250 },
+      { warehouseId: mumbaiWarehouse.id, locationIdx: 11, qty: 350 },
+      { warehouseId: delhiWarehouse.id, locationIdx: 15, qty: 400 },
+      { warehouseId: bangaloreWarehouse.id, locationIdx: 19, qty: 320 },
+    ]},
+  ];
+
+  // Create receipt operations for each warehouse to establish initial stock
+  let receiptCounter = 4;
+  for (const dist of stockDistribution) {
+    for (const stock of dist.stocks) {
+      await prisma.operation.create({
+        data: {
+          type: OperationType.RECEIPT,
+          reference: `WH/IN/${String(receiptCounter).padStart(4, '0')}`,
+          status: OperationStatus.DONE,
+          warehouseToId: stock.warehouseId,
+          locationToId: locations[stock.locationIdx].id,
+          contactName: 'Initial Stock - Various Suppliers',
+          scheduleDate: new Date('2024-01-10'),
+          createdByUserId: manager.id,
+          responsibleUserId: staff.id,
+          items: {
+            create: [{ productId: dist.productId, quantity: stock.qty }],
+          },
+          stockMovements: {
+            create: [{
+              productId: dist.productId,
+              locationToId: locations[stock.locationIdx].id,
+              quantityDelta: stock.qty,
+              movementType: 'RECEIPT',
+            }],
+          },
+        },
+      });
+      receiptCounter++;
+    }
+  }
+
+  console.log(`✅ Created diverse stock across all ${5} warehouses for ${products.length} products`);
 
   console.log('✨ Seed completed successfully!');
   console.log('\n📊 Summary:');
-  console.log(`   Users: 3 (admin01, manager01, staff01)`);
+  console.log(`   Users: 8 (admin01, manager01, staff01, plus 5 Indian users)`);
   console.log(`   Password for all users: password123`);
-  console.log(`   Warehouses: 2`);
-  console.log(`   Locations: 6`);
-  console.log(`   Categories: 4`);
-  console.log(`   Products: 8`);
-  console.log(`   Operations: 6 (4 completed, 2 pending)`);
+  console.log(`   Warehouses: 5 (Main, Secondary, Mumbai, Delhi, Bangalore)`);
+  console.log(`   Locations: ${locations.length} across all warehouses`);
+  console.log(`   Categories: ${categories.length}`);
+  console.log(`   Products: ${products.length}`);
+  console.log(`   Operations: ${receiptCounter - 1} (all completed with stock movements)`);
+  console.log('\n💡 Stock Distribution:');
+  console.log(`   Each product has different stock levels in each warehouse`);
+  console.log(`   Main Warehouse: Various quantities`);
+  console.log(`   Secondary Warehouse: Various quantities`);
+  console.log(`   Mumbai DC: Generally higher quantities`);
+  console.log(`   Delhi Central: Generally higher quantities`);
+  console.log(`   Bangalore Tech Hub: Moderate quantities`);
 }
 
 main()
