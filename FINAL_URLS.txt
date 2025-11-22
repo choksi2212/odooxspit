@@ -3,7 +3,7 @@
 ========================================
 
 FRONTEND (Your App - Use This!):
-https://front-c19pb5q9b-manas-choksis-projects-ed92c8ab.vercel.app
+https://front-a7h6oo376-manas-choksis-projects-ed92c8ab.vercel.app
 
 BACKEND API:
 https://backend-phaoatprs-manas-choksis-projects-ed92c8ab.vercel.app
