@@ -17,6 +17,8 @@ export class ProductController {
         search?: string;
         categoryId?: string;
         isActive?: string | boolean;
+        warehouseId?: string;
+        locationId?: string;
       };
     }>,
     reply: FastifyReply
