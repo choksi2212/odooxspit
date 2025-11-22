@@ -1,0 +1,25 @@
+{
+  "name": "stockmaster",
+  "version": "1.0.0",
+  "description": "StockMaster - Inventory Management System",
+  "scripts": {
+    "start": "concurrently --kill-others --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\" \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm run dev",
+    "start:frontend": "cd front-end && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../front-end && npm install",
+    "build:all": "cd backend && npm run build && cd ../front-end && npm run build",
+    "test:all": "cd backend && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "inventory",
+    "management",
+    "stock",
+    "warehouse"
+  ],
+  "author": "StockMaster Team",
+  "license": "MIT"
+}
+
