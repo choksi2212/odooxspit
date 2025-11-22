@@ -37,7 +37,7 @@ export default function MoveHistoryPage() {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
       move.reference?.toLowerCase().includes(searchLower) ||
-      move.contact?.toLowerCase().includes(searchLower);
+      move.contactName?.toLowerCase().includes(searchLower);
 
     const matchesType = filterType === 'all' || move.type === filterType;
     const matchesStatus = filterStatus === 'all' || move.status === filterStatus;
@@ -46,10 +46,12 @@ export default function MoveHistoryPage() {
   });
 
   const getMovementType = (type: string) => {
-    if (type === 'RECEIPT' || type === 'ADJUSTMENT_IN') {
-      return { label: 'In', icon: ArrowUpCircle, color: 'text-movement-in' };
+    // RECEIPT and ADJUSTMENT (positive delta) are incoming
+    // DELIVERY and TRANSFER (negative delta from source) are outgoing
+    if (type === 'RECEIPT' || type === 'ADJUSTMENT') {
+      return { label: 'In', icon: ArrowUpCircle, color: 'text-green-600' };
     }
-    return { label: 'Out', icon: ArrowDownCircle, color: 'text-movement-out' };
+    return { label: 'Out', icon: ArrowDownCircle, color: 'text-red-600' };
   };
 
   return (
@@ -135,9 +137,9 @@ export default function MoveHistoryPage() {
                         <TableCell>
                           {move.date ? format(new Date(move.date), 'MMM dd, yyyy HH:mm') : '-'}
                         </TableCell>
-                        <TableCell>{move.contact || '-'}</TableCell>
-                        <TableCell>{move.from || '-'}</TableCell>
-                        <TableCell>{move.to || '-'}</TableCell>
+                        <TableCell>{move.contactName || '-'}</TableCell>
+                        <TableCell>{move.from?.location?.name || '-'}</TableCell>
+                        <TableCell>{move.to?.location?.name || '-'}</TableCell>
                         <TableCell className="text-right font-mono">
                           <div className="flex items-center justify-end gap-1">
                             <MovementIcon className={`h-4 w-4 ${movementType.color}`} />
@@ -149,8 +151,8 @@ export default function MoveHistoryPage() {
                             variant="outline"
                             className={
                               movementType.label === 'In'
-                                ? 'border-movement-in text-movement-in'
-                                : 'border-movement-out text-movement-out'
+                                ? 'border-green-600 text-green-600'
+                                : 'border-red-600 text-red-600'
                             }
                           >
                             {movementType.label}

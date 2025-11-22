@@ -52,8 +52,8 @@ export default function TransfersListPage() {
     const searchLower = searchTerm.toLowerCase();
     return (
       op.reference?.toLowerCase().includes(searchLower) ||
-      op.from?.toLowerCase().includes(searchLower) ||
-      op.to?.toLowerCase().includes(searchLower)
+      op.locationFrom?.name?.toLowerCase().includes(searchLower) ||
+      op.locationTo?.name?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -111,9 +111,9 @@ export default function TransfersListPage() {
                   {filteredOperations?.map((operation: any) => (
                     <TableRow key={operation.id}>
                       <TableCell className="font-medium">{operation.reference}</TableCell>
-                      <TableCell>{operation.from || '-'}</TableCell>
-                      <TableCell>{operation.to || '-'}</TableCell>
-                      <TableCell>{operation.responsible || '-'}</TableCell>
+                      <TableCell>{operation.locationFrom?.name || '-'}</TableCell>
+                      <TableCell>{operation.locationTo?.name || '-'}</TableCell>
+                      <TableCell>{operation.responsible?.name || '-'}</TableCell>
                       <TableCell>
                         {operation.scheduleDate
                           ? format(new Date(operation.scheduleDate), 'MMM dd, yyyy')
