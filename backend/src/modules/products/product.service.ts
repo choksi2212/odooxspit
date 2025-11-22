@@ -122,6 +122,7 @@ export class ProductService {
           currentStock: totalStock,
           lowStockThreshold: product.reorderLevel,
           category: product.category?.name || null,
+          cost: parseFloat(product.costPrice.toString()), // Add cost field for frontend
         };
       })
     );

@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function ProfilePage() {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -235,12 +235,16 @@ export default function ProfilePage() {
                   currentPassword: passwordData.currentPassword,
                   newPassword: passwordData.newPassword,
                 });
-                toast.success('Password changed successfully!');
+                toast.success('Password changed successfully! Please log in again.');
                 setPasswordData({
                   currentPassword: '',
                   newPassword: '',
                   confirmPassword: '',
                 });
+                // Log out user to force re-login with new password
+                setTimeout(() => {
+                  logout();
+                }, 2000);
               } catch (error: any) {
                 toast.error(error.message || 'Failed to change password');
               } finally {

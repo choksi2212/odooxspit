@@ -238,6 +238,9 @@ export class AuthController {
     const { currentPassword, newPassword } = request.body;
     const result = await authService.changePassword(user.id, currentPassword, newPassword);
 
+    // Clear refresh token cookie to force re-login
+    reply.clearCookie('refreshToken');
+
     return reply.send(result);
   }
 

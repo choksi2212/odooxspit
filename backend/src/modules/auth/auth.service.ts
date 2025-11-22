@@ -253,11 +253,18 @@ export class AuthService {
       parallelism: 4,
     });
 
-    // Update password
-    await prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash },
-    });
+    // Update password and revoke all refresh tokens in a transaction
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      }),
+      // Revoke all refresh tokens for security after password change
+      prisma.refreshToken.updateMany({
+        where: { userId, isRevoked: false },
+        data: { isRevoked: true, revokedAt: new Date() },
+      }),
+    ]);
 
     return { message: 'Password changed successfully' };
   }
