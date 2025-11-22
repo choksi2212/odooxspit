@@ -49,7 +49,7 @@ try {
 } catch {
     Print-Warning "Not logged in to Railway. Please login..."
     Print-Info "A browser window will open for authentication..."
-    railway login
+    railway login --browserless
     Print-Success "Logged in successfully!"
 }
 
