@@ -21,7 +21,9 @@ import ReceiptDetailPage from "@/routes/Operations/ReceiptDetailPage";
 import DeliveriesListPage from "@/routes/Operations/DeliveriesListPage";
 import DeliveryDetailPage from "@/routes/Operations/DeliveryDetailPage";
 import TransfersListPage from "@/routes/Operations/TransfersListPage";
+import TransferDetailPage from "@/routes/Operations/TransferDetailPage";
 import AdjustmentsListPage from "@/routes/Operations/AdjustmentsListPage";
+import AdjustmentDetailPage from "@/routes/Operations/AdjustmentDetailPage";
 import ProductsPage from "@/routes/Products/ProductsPage";
 import MoveHistoryPage from "@/routes/MoveHistory/MoveHistoryPage";
 import WarehousesPage from "@/routes/Settings/WarehousesPage";
@@ -91,7 +93,9 @@ function AppRoutes() {
       <Route path="/operations/deliveries" element={<ProtectedRoute><DeliveriesListPage /></ProtectedRoute>} />
       <Route path="/operations/deliveries/:id" element={<ProtectedRoute><DeliveryDetailPage /></ProtectedRoute>} />
       <Route path="/operations/transfers" element={<ProtectedRoute><TransfersListPage /></ProtectedRoute>} />
+      <Route path="/operations/transfers/:id" element={<ProtectedRoute><TransferDetailPage /></ProtectedRoute>} />
       <Route path="/operations/adjustments" element={<ProtectedRoute><AdjustmentsListPage /></ProtectedRoute>} />
+      <Route path="/operations/adjustments/:id" element={<ProtectedRoute><AdjustmentDetailPage /></ProtectedRoute>} />
       
       {/* Products */}
       <Route path="/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
