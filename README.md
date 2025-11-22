@@ -465,7 +465,6 @@ npm install
 
 - 📘 [Complete API Documentation](backend/README.md)
 - 📧 [Email Setup Guide](backend/EMAIL_SETUP_GUIDE.md) - Configure OTP emails
-- 📊 [Project Status](PROJECT_STATUS.md) - Full feature list & testing guide
 - 🐛 [Troubleshooting](#-troubleshooting) - Common issues & solutions
 
 ## ✅ What's Working
@@ -554,7 +553,7 @@ MIT License - see LICENSE file for details
 For support or questions:
 - 📧 Email: support@stockmaster.com
 - 🐛 Issues: [GitHub Issues](https://github.com/choksi2212/odooxspit/issues)
-- 📖 Documentation: See [PROJECT_STATUS.md](PROJECT_STATUS.md)
+- 📖 Documentation: See README.md and guides in backend folder
 
 ---
 
