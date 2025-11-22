@@ -1,31 +1,31 @@
-# 🚂 Railway Deployment Script for StockMaster Backend (PowerShell)
+# Railway Deployment Script for StockMaster Backend (PowerShell)
 # This script automates the entire Railway deployment process
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "🚂 StockMaster - Railway Deployment Script" -ForegroundColor Cyan
+Write-Host "[RAILWAY] StockMaster - Railway Deployment Script" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Function to print colored messages
 function Print-Success {
     param($Message)
-    Write-Host "✅ $Message" -ForegroundColor Green
+    Write-Host "[SUCCESS] $Message" -ForegroundColor Green
 }
 
 function Print-Info {
     param($Message)
-    Write-Host "ℹ️  $Message" -ForegroundColor Blue
+    Write-Host "[INFO] $Message" -ForegroundColor Blue
 }
 
 function Print-Warning {
     param($Message)
-    Write-Host "⚠️  $Message" -ForegroundColor Yellow
+    Write-Host "[WARNING] $Message" -ForegroundColor Yellow
 }
 
 function Print-Error {
     param($Message)
-    Write-Host "❌ $Message" -ForegroundColor Red
+    Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
 
 # Check if Railway CLI is installed
@@ -141,7 +141,7 @@ $RAILWAY_URL = railway domain
 
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
-Print-Success "🎉 Deployment Complete!"
+Print-Success "Deployment Complete!"
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
 Print-Info "Your backend is now live at:"
@@ -165,5 +165,5 @@ Write-Host ""
 Print-Info "To view logs: railway logs"
 Print-Info "To view dashboard: railway open"
 Write-Host ""
-Print-Success "Happy deploying! 🚀"
+Print-Success "Happy deploying!"
 
