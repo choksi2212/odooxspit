@@ -22,7 +22,7 @@ try {
 # Step 2: Login to Vercel
 Write-Host "[2/10] Logging into Vercel..." -ForegroundColor Yellow
 Write-Host "[INFO] Browser will open for authentication...`n" -ForegroundColor Cyan
-vercel login
+npx vercel login
 
 Write-Host "[SUCCESS] Logged in to Vercel!`n" -ForegroundColor Green
 
@@ -80,7 +80,7 @@ Write-Host "[INFO] Uploading code (this may take 2-3 minutes)...`n" -ForegroundC
 cd backend
 
 # Create Vercel project and deploy
-$backendDeploy = vercel --yes --prod `
+$backendDeploy = npx vercel --yes --prod `
     --env NODE_ENV=production `
     --env PORT=4000 `
     --env DATABASE_URL="$DATABASE_URL" `
@@ -123,7 +123,7 @@ cd front-end
 
 $WS_URL = $BACKEND_URL -replace "https://", "wss://"
 
-$frontendDeploy = vercel --yes --prod `
+$frontendDeploy = npx vercel --yes --prod `
     --env VITE_API_URL="$BACKEND_URL" `
     --env VITE_WS_URL="$WS_URL/ws"
 
@@ -137,9 +137,9 @@ cd ..
 # Step 10: Update CORS
 Write-Host "[10/10] Updating CORS settings..." -ForegroundColor Yellow
 cd backend
-vercel env rm CORS_ORIGIN production --yes
-vercel env add CORS_ORIGIN production --value="$FRONTEND_URL"
-vercel --prod
+npx vercel env rm CORS_ORIGIN production --yes
+npx vercel env add CORS_ORIGIN production --value="$FRONTEND_URL"
+npx vercel --prod
 cd ..
 
 Write-Host "[SUCCESS] CORS updated!`n" -ForegroundColor Green
