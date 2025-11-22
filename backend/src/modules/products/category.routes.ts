@@ -27,18 +27,12 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
   // Create category
   fastify.post('/', {
     preHandler: [authenticate, requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: createProductCategorySchema,
-    },
     handler: categoryController.create.bind(categoryController),
   });
 
   // Update category
   fastify.patch('/:id', {
     preHandler: [authenticate, requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: updateProductCategorySchema,
-    },
     handler: categoryController.update.bind(categoryController),
   });
 

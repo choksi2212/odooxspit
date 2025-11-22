@@ -21,17 +21,11 @@ export default async function locationRoutes(fastify: FastifyInstance) {
 
   fastify.post('/', {
     preHandler: [requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: createLocationSchema,
-    },
     handler: locationController.create.bind(locationController),
   });
 
   fastify.patch('/:id', {
     preHandler: [requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: updateLocationSchema,
-    },
     handler: locationController.update.bind(locationController),
   });
 

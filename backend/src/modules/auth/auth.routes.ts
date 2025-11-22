@@ -15,34 +15,10 @@ import {
 export default async function authRoutes(fastify: FastifyInstance) {
   // Public routes
   fastify.post('/signup', {
-    schema: {
-      body: signupSchema,
-      response: {
-        201: {
-          type: 'object',
-          properties: {
-            user: { type: 'object' },
-            accessToken: { type: 'string' },
-          },
-        },
-      },
-    },
     handler: authController.signup.bind(authController),
   });
 
   fastify.post('/login', {
-    schema: {
-      body: loginSchema,
-      response: {
-        200: {
-          type: 'object',
-          properties: {
-            user: { type: 'object' },
-            accessToken: { type: 'string' },
-          },
-        },
-      },
-    },
     handler: authController.login.bind(authController),
   });
 
@@ -51,16 +27,10 @@ export default async function authRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post('/request-otp', {
-    schema: {
-      body: requestOtpSchema,
-    },
     handler: authController.requestOtp.bind(authController),
   });
 
   fastify.post('/reset-password', {
-    schema: {
-      body: resetPasswordSchema,
-    },
     handler: authController.resetPassword.bind(authController),
   });
 

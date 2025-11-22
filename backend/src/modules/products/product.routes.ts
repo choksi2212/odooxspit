@@ -16,9 +16,6 @@ export default async function productRoutes(fastify: FastifyInstance) {
   // Get all products
   fastify.get('/', {
     preHandler: [authenticate],
-    schema: {
-      querystring: productsQuerySchema,
-    },
     handler: productController.getAll.bind(productController),
   });
 
@@ -43,18 +40,12 @@ export default async function productRoutes(fastify: FastifyInstance) {
   // Create product
   fastify.post('/', {
     preHandler: [authenticate, requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: createProductSchema,
-    },
     handler: productController.create.bind(productController),
   });
 
   // Update product
   fastify.patch('/:id', {
     preHandler: [authenticate, requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: updateProductSchema,
-    },
     handler: productController.update.bind(productController),
   });
 

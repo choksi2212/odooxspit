@@ -11,9 +11,6 @@ export default async function moveHistoryRoutes(fastify: FastifyInstance) {
   // Get move history
   fastify.get('/', {
     preHandler: [authenticate],
-    schema: {
-      querystring: moveHistoryQuerySchema,
-    },
     handler: moveHistoryController.getHistory.bind(moveHistoryController),
   });
 

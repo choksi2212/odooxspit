@@ -21,17 +21,11 @@ export default async function warehouseRoutes(fastify: FastifyInstance) {
 
   fastify.post('/', {
     preHandler: [requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: createWarehouseSchema,
-    },
     handler: warehouseController.create.bind(warehouseController),
   });
 
   fastify.patch('/:id', {
     preHandler: [requireRole(UserRole.ADMIN, UserRole.INVENTORY_MANAGER)],
-    schema: {
-      body: updateWarehouseSchema,
-    },
     handler: warehouseController.update.bind(warehouseController),
   });
 
