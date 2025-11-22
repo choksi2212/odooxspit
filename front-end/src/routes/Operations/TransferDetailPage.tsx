@@ -23,6 +23,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { StatusBadge } from '@/components/Operations/StatusBadge';
+import { DatePicker } from '@/components/ui/date-picker';
 import { ChevronRight, Plus, Trash2, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -382,12 +383,13 @@ export default function TransferDetailPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="scheduleDate">Schedule Date</Label>
-                <Input
-                  id="scheduleDate"
-                  type="date"
-                  value={formData.scheduleDate}
-                  onChange={(e) => setFormData({ ...formData, scheduleDate: e.target.value })}
+                <DatePicker
+                  date={formData.scheduleDate ? new Date(formData.scheduleDate) : undefined}
+                  onDateChange={(date) => 
+                    setFormData({ ...formData, scheduleDate: date ? format(date, 'yyyy-MM-dd') : '' })
+                  }
                   disabled={!canEdit}
+                  placeholder="Select schedule date"
                 />
               </div>
 
