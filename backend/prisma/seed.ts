@@ -10,18 +10,40 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Clear existing data
+  // Clear existing data (with error handling for first run)
   console.log('Clearing existing data...');
-  await prisma.stockMovement.deleteMany();
-  await prisma.operationItem.deleteMany();
-  await prisma.operation.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.productCategory.deleteMany();
-  await prisma.location.deleteMany();
-  await prisma.warehouse.deleteMany();
-  await prisma.otpToken.deleteMany();
-  await prisma.refreshToken.deleteMany();
-  await prisma.user.deleteMany();
+  try {
+    await prisma.stockMovement.deleteMany();
+  } catch (e) {
+    // Table might not exist yet, that's okay
+  }
+  try {
+    await prisma.operationItem.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.operation.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.product.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.productCategory.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.location.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.warehouse.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.otpToken.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.refreshToken.deleteMany();
+  } catch (e) {}
+  try {
+    await prisma.user.deleteMany();
+  } catch (e) {}
 
   // Create users
   console.log('Creating users...');
@@ -800,17 +822,38 @@ async function main() {
     ]},
   ];
 
+  // Get all locations again (after all warehouses are created)
+  const allLocations = await prisma.location.findMany({
+    orderBy: { createdAt: 'asc' },
+    include: { warehouse: true },
+  });
+  
+  // Group locations by warehouse
+  const locationsByWarehouse = new Map();
+  for (const loc of allLocations) {
+    if (!locationsByWarehouse.has(loc.warehouseId)) {
+      locationsByWarehouse.set(loc.warehouseId, []);
+    }
+    locationsByWarehouse.get(loc.warehouseId).push(loc);
+  }
+  
   // Create receipt operations for each warehouse to establish initial stock
   let receiptCounter = 4;
   for (const dist of stockDistribution) {
     for (const stock of dist.stocks) {
+      // Get first location for this warehouse
+      const warehouseLocations = locationsByWarehouse.get(stock.warehouseId) || [];
+      if (warehouseLocations.length === 0) continue;
+      
+      const targetLocation = warehouseLocations[Math.min(stock.locationIdx, warehouseLocations.length - 1)];
+      
       await prisma.operation.create({
         data: {
           type: OperationType.RECEIPT,
           reference: `WH/IN/${String(receiptCounter).padStart(4, '0')}`,
           status: OperationStatus.DONE,
           warehouseToId: stock.warehouseId,
-          locationToId: locations[stock.locationIdx].id,
+          locationToId: targetLocation.id,
           contactName: 'Initial Stock - Various Suppliers',
           scheduleDate: new Date('2024-01-10'),
           createdByUserId: manager.id,
@@ -821,7 +864,7 @@ async function main() {
           stockMovements: {
             create: [{
               productId: dist.productId,
-              locationToId: locations[stock.locationIdx].id,
+              locationToId: targetLocation.id,
               quantityDelta: stock.qty,
               movementType: 'RECEIPT',
             }],

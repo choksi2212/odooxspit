@@ -46,3 +46,4 @@ prisma/migrations/.lock
 .cache/
 tmp/
 temp/
+.vercel
