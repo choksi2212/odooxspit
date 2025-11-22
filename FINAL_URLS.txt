@@ -1,0 +1,72 @@
+========================================
+   StockMaster - FINAL LIVE URLs
+========================================
+
+FRONTEND (Your App - Use This!):
+https://front-c19pb5q9b-manas-choksis-projects-ed92c8ab.vercel.app
+
+BACKEND API:
+https://backend-phaoatprs-manas-choksis-projects-ed92c8ab.vercel.app
+
+WEBSOCKET:
+wss://backend-phaoatprs-manas-choksis-projects-ed92c8ab.vercel.app/ws
+
+========================================
+   TEST CREDENTIALS
+========================================
+
+Login ID: admin01
+Password: password123
+
+(Also works: manager01, staff01, and 5 Indian users)
+
+========================================
+   EMAIL SETUP
+========================================
+
+To enable password reset emails, run:
+.\setup-email.ps1
+
+Or manually add in Vercel Dashboard:
+https://vercel.com/manas-choksis-projects-ed92c8ab/backend/settings/environment-variables
+
+Add:
+- EMAIL_HOST (e.g., smtp.gmail.com)
+- EMAIL_PORT (587 for Gmail)
+- EMAIL_USER (your email)
+- EMAIL_PASS (app password)
+- EMAIL_FROM (noreply@stockmaster.com)
+- EMAIL_FROM_NAME (StockMaster)
+
+========================================
+   IF YOU SEE "FAILED TO FETCH"
+========================================
+
+1. Wait 1-2 minutes for latest deployment to complete
+2. Hard refresh browser (Ctrl+Shift+R or Ctrl+F5)
+3. Check browser console (F12) for specific errors
+4. Verify backend is up:
+   https://backend-phaoatprs-manas-choksis-projects-ed92c8ab.vercel.app/api/warehouses
+
+========================================
+   DEPLOYMENT STATUS
+========================================
+
+✅ Frontend: Deployed to Vercel
+✅ Backend: Deployed to Vercel  
+✅ Database: Supabase PostgreSQL (seeded with data)
+✅ Redis: Upstash (free tier)
+✅ Environment Variables: All configured
+✅ CORS: Updated to frontend URL
+✅ Email Service: Ready (needs SMTP config)
+
+========================================
+   COST
+========================================
+
+Total: $0/month (100% FREE!)
+
+========================================
+
+Last Updated: November 22, 2025
+
