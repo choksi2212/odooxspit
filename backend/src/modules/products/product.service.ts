@@ -24,6 +24,13 @@ export class ProductService {
     const { page, limit } = parsePaginationParams(filters);
     const skip = (page - 1) * limit;
 
+    // Debug logging
+    console.log('🔍 ProductService.getAll called with filters:', {
+      warehouseId: filters.warehouseId,
+      locationId: filters.locationId,
+      search: filters.search,
+    });
+
     const where: any = {};
 
     if (filters.search) {
@@ -59,6 +66,17 @@ export class ProductService {
       prisma.product.count({ where }),
     ]);
 
+    // Pre-fetch warehouse locations if filtering by warehouse
+    let warehouseLocationIds: Set<string> | null = null;
+    if (filters.warehouseId) {
+      const warehouseLocations = await prisma.location.findMany({
+        where: { warehouseId: filters.warehouseId },
+        select: { id: true },
+      });
+      warehouseLocationIds = new Set(warehouseLocations.map(l => l.id));
+      console.log(`📍 Warehouse ${filters.warehouseId} has ${warehouseLocationIds.size} locations:`, Array.from(warehouseLocationIds));
+    }
+
     // Calculate current stock for each product
     const productsWithStock = await Promise.all(
       products.map(async (product) => {
@@ -69,8 +87,6 @@ export class ProductService {
             quantityDelta: true, 
             locationToId: true, 
             locationFromId: true,
-            locationTo: { select: { warehouseId: true } },
-            locationFrom: { select: { warehouseId: true } },
           },
         });
 
@@ -99,16 +115,10 @@ export class ProductService {
         if (filters.locationId) {
           // Specific location: only count that location's stock
           totalStock = stockByLocation.get(filters.locationId) || 0;
-        } else if (filters.warehouseId) {
+        } else if (warehouseLocationIds) {
           // Specific warehouse: sum stock from all locations in that warehouse
-          const warehouseLocations = await prisma.location.findMany({
-            where: { warehouseId: filters.warehouseId },
-            select: { id: true },
-          });
-          const locationIds = new Set(warehouseLocations.map(l => l.id));
-          
           for (const [locationId, qty] of stockByLocation.entries()) {
-            if (locationIds.has(locationId)) {
+            if (warehouseLocationIds.has(locationId)) {
               totalStock += qty;
             }
           }
