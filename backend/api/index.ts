@@ -4,10 +4,11 @@
  */
 import { buildApp } from '../src/app.js';
 import prisma from '../src/db/client.js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 let app: any = null;
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Build app on first request (cold start)
   if (!app) {
     app = await buildApp();
@@ -20,31 +21,39 @@ export default async function handler(req: any, res: any) {
   const url = req.url || '/';
   const method = req.method || 'GET';
   
-  // Use Fastify's inject method for testing, but for Vercel we need to handle differently
-  // Actually, we need to use Fastify's serverless adapter
   try {
-    // For Vercel, we need to handle the request through Fastify's routing
+    // Use Fastify's inject method to handle the request
     const response = await app.inject({
-      method,
+      method: method as any,
       url,
       headers: req.headers || {},
       query: req.query || {},
-      body: req.body,
       payload: req.body,
     });
 
     // Set status and headers
-    res.statusCode = response.statusCode;
-    Object.keys(response.headers).forEach((key) => {
-      res.setHeader(key, response.headers[key] as string);
-    });
+    res.status(response.statusCode);
+    
+    // Set response headers
+    const headers = response.headers;
+    if (headers) {
+      Object.keys(headers).forEach((key) => {
+        const value = headers[key];
+        if (value) {
+          res.setHeader(key, Array.isArray(value) ? value[0] : value);
+        }
+      });
+    }
 
-    // Send response
-    res.end(response.body);
+    // Send response body
+    const body = response.body || '';
+    res.send(body);
   } catch (error: any) {
     console.error('Serverless handler error:', error);
-    res.statusCode = 500;
-    res.end(JSON.stringify({ error: 'Internal server error', message: error.message }));
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      message: error?.message || 'Unknown error' 
+    });
   }
 }
 
