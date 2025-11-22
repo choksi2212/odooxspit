@@ -3,7 +3,7 @@
   "buildCommand": "cd front-end && npm install && npm run build",
   "outputDirectory": "front-end/dist",
   "framework": "vite",
-  "installCommand": "cd front-end && npm install",
+  "installCommand": "npm install",
   "devCommand": "cd front-end && npm run dev",
   "cleanUrls": true,
   "trailingSlash": false,
@@ -42,4 +42,3 @@
     }
   ]
 }
-
