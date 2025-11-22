@@ -1,0 +1,311 @@
+// StockMaster Database Schema
+// This schema implements a well-normalized relational design for inventory management
+// with a stock ledger pattern for real-time inventory tracking.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT & AUTHENTICATION
+// ============================================
+
+model User {
+  id           String   @id @default(cuid())
+  loginId      String   @unique @db.VarChar(12)
+  email        String   @unique @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  role         UserRole @default(WAREHOUSE_STAFF)
+  passwordHash String   @db.VarChar(255)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  otpTokens         OtpToken[]
+  refreshTokens     RefreshToken[]
+  createdOperations Operation[]      @relation("OperationCreator")
+  responsibleFor    Operation[]      @relation("OperationResponsible")
+
+  @@index([email])
+  @@index([loginId])
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  INVENTORY_MANAGER
+  WAREHOUSE_STAFF
+}
+
+model OtpToken {
+  id         String      @id @default(cuid())
+  userId     String
+  otpHash    String      @db.VarChar(255)
+  type       OtpType
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, expiresAt])
+  @@map("otp_tokens")
+}
+
+enum OtpType {
+  PASSWORD_RESET
+}
+
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  tokenHash    String    @db.VarChar(255)
+  expiresAt    DateTime
+  isRevoked    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRevoked])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// WAREHOUSE & LOCATION MANAGEMENT
+// ============================================
+
+model Warehouse {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(255)
+  shortCode String   @db.VarChar(10)
+  address   String?  @db.Text
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  locations             Location[]
+  operationsFrom        Operation[]       @relation("OperationWarehouseFrom")
+  operationsTo          Operation[]       @relation("OperationWarehouseTo")
+
+  @@index([shortCode])
+  @@map("warehouses")
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  warehouseId String
+  name        String   @db.VarChar(255)
+  shortCode   String   @db.VarChar(20)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  // Relations
+  operationsFrom       Operation[]       @relation("OperationLocationFrom")
+  operationsTo         Operation[]       @relation("OperationLocationTo")
+  movementsFrom        StockMovement[]   @relation("MovementLocationFrom")
+  movementsTo          StockMovement[]   @relation("MovementLocationTo")
+  lowStockAlerts       LowStockAlert[]
+
+  @@index([warehouseId])
+  @@index([shortCode])
+  @@map("locations")
+}
+
+// ============================================
+// PRODUCT MANAGEMENT
+// ============================================
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  name      String    @unique @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String   @db.VarChar(255)
+  sku           String   @unique @db.VarChar(100)
+  categoryId    String?
+  unitOfMeasure String   @db.VarChar(50) @default("Units")
+  reorderLevel  Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  category ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // Relations
+  operationItems   OperationItem[]
+  stockMovements   StockMovement[]
+  lowStockAlerts   LowStockAlert[]
+
+  @@index([sku])
+  @@index([categoryId])
+  @@index([name])
+  @@map("products")
+}
+
+// ============================================
+// OPERATIONS (HEADER TABLE)
+// ============================================
+
+model Operation {
+  id                String          @id @default(cuid())
+  type              OperationType
+  reference         String          @unique @db.VarChar(50)
+  status            OperationStatus @default(DRAFT)
+  
+  // Warehouse/Location references (nullable based on operation type)
+  warehouseFromId   String?
+  warehouseToId     String?
+  locationFromId    String?
+  locationToId      String?
+  
+  // Additional metadata
+  contactName       String?         @db.VarChar(255)
+  scheduleDate      DateTime?
+  notes             String?         @db.Text
+  
+  // User tracking
+  createdByUserId   String
+  responsibleUserId String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Relations
+  warehouseFrom  Warehouse?        @relation("OperationWarehouseFrom", fields: [warehouseFromId], references: [id])
+  warehouseTo    Warehouse?        @relation("OperationWarehouseTo", fields: [warehouseToId], references: [id])
+  locationFrom   Location?         @relation("OperationLocationFrom", fields: [locationFromId], references: [id])
+  locationTo     Location?         @relation("OperationLocationTo", fields: [locationToId], references: [id])
+  createdBy      User              @relation("OperationCreator", fields: [createdByUserId], references: [id])
+  responsible    User?             @relation("OperationResponsible", fields: [responsibleUserId], references: [id])
+  
+  items          OperationItem[]
+  stockMovements StockMovement[]
+
+  @@index([type])
+  @@index([status])
+  @@index([reference])
+  @@index([warehouseFromId])
+  @@index([warehouseToId])
+  @@index([locationFromId])
+  @@index([locationToId])
+  @@index([scheduleDate])
+  @@index([createdByUserId])
+  @@index([type, status])
+  @@index([createdAt])
+  @@map("operations")
+}
+
+enum OperationType {
+  RECEIPT
+  DELIVERY
+  TRANSFER
+  ADJUSTMENT
+}
+
+enum OperationStatus {
+  DRAFT
+  WAITING
+  READY
+  DONE
+  CANCELED
+}
+
+// ============================================
+// OPERATION ITEMS (LINE ITEMS)
+// ============================================
+
+model OperationItem {
+  id          String  @id @default(cuid())
+  operationId String
+  productId   String
+  quantity    Decimal @db.Decimal(15, 4)
+  
+  operation Operation @relation(fields: [operationId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([operationId])
+  @@index([productId])
+  @@map("operation_items")
+}
+
+// ============================================
+// STOCK MOVEMENT LEDGER
+// ============================================
+// This is the core of our inventory tracking system.
+// Current stock at any location is computed as SUM(quantityDelta)
+// for all movements targeting that location.
+// Time complexity: O(n) where n = number of movements for a product-location pair
+// Can be optimized with periodic snapshots + incremental updates.
+
+model StockMovement {
+  id             String        @id @default(cuid())
+  productId      String
+  locationFromId String?
+  locationToId   String?
+  quantityDelta  Decimal       @db.Decimal(15, 4)
+  operationId    String
+  movementType   MovementType
+  createdAt      DateTime      @default(now())
+
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Restrict)
+  locationFrom Location?  @relation("MovementLocationFrom", fields: [locationFromId], references: [id])
+  locationTo   Location?  @relation("MovementLocationTo", fields: [locationToId], references: [id])
+  operation    Operation  @relation(fields: [operationId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([locationFromId])
+  @@index([locationToId])
+  @@index([operationId])
+  @@index([productId, locationToId])
+  @@index([createdAt])
+  @@map("stock_movements")
+}
+
+enum MovementType {
+  RECEIPT
+  DELIVERY
+  TRANSFER
+  ADJUSTMENT
+}
+
+// ============================================
+// LOW STOCK ALERTS
+// ============================================
+
+model LowStockAlert {
+  id         String    @id @default(cuid())
+  productId  String
+  locationId String?
+  currentQty Decimal   @db.Decimal(15, 4)
+  threshold  Int
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  product  Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@index([productId, locationId, resolvedAt])
+  @@index([createdAt])
+  @@map("low_stock_alerts")
+}
+
