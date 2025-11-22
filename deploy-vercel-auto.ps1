@@ -26,14 +26,8 @@ npx vercel login
 
 Write-Host "[SUCCESS] Logged in to Vercel!`n" -ForegroundColor Green
 
-# Step 3: Install Supabase CLI
-Write-Host "[3/10] Checking Supabase CLI..." -ForegroundColor Yellow
-try {
-    npx supabase --version | Out-Null
-    Write-Host "[SUCCESS] Supabase CLI ready!`n" -ForegroundColor Green
-} catch {
-    Write-Host "[INFO] Supabase CLI will use npx...`n" -ForegroundColor Yellow
-}
+# Step 3: Skip Supabase CLI (not needed)
+Write-Host "[3/10] Skipping Supabase CLI check (not required)...`n" -ForegroundColor Yellow
 
 # Step 4: Create Supabase project
 Write-Host "[4/10] Setting up Supabase (PostgreSQL)..." -ForegroundColor Yellow
