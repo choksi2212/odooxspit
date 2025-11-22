@@ -100,11 +100,19 @@ Write-Host "[8/10] Setting up database schema..." -ForegroundColor Yellow
 $env:DATABASE_URL = $DATABASE_URL
 
 cd backend
-npx prisma db push --accept-data-loss --skip-generate
+
+Write-Host "Generating Prisma Client..." -ForegroundColor Yellow
+npx prisma generate
+
+Write-Host "Pushing schema to database..." -ForegroundColor Yellow
+$env:PRISMA_DISABLE_WARNINGS = "true"
+npx prisma db push --accept-data-loss --skip-generate --force-reset
+
 Write-Host "[SUCCESS] Database schema created!`n" -ForegroundColor Green
 
 Write-Host "Seeding database with sample data..." -ForegroundColor Yellow
 npm run prisma:seed
+
 Write-Host "[SUCCESS] Database ready with sample data!`n" -ForegroundColor Green
 
 cd ..
