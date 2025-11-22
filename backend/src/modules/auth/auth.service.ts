@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import prisma from '../../db/client.js';
 import { config } from '../../config/index.js';
 import { generateOTP } from '../../common/utils.js';
+import { emailService } from '../../services/email.service.js';
 import {
   AuthenticationError,
   ConflictError,
@@ -154,10 +155,17 @@ export class AuthService {
       },
     });
 
+    // Send OTP via email
+    const emailSent = await emailService.sendOTP(user.email, otp, user.name);
+
+    if (!emailSent) {
+      console.warn(`Failed to send OTP email to ${user.email}. OTP: ${otp}`);
+    }
+
     return {
-      message: 'If the email exists, an OTP has been sent',
-      // For demo purposes only - in production, send via email
-      otpForDemo: otp,
+      message: 'If the email exists, an OTP has been sent to your email address',
+      // Only include OTP in response if email service is not configured (for development)
+      ...(config.email.host ? {} : { otpForDemo: otp }),
     };
   }
 

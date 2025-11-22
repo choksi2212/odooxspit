@@ -32,6 +32,15 @@ export const config = {
   otp: {
     expiryMinutes: parseInt(process.env.OTP_EXPIRY_MINUTES || '10', 10),
   },
+  email: {
+    host: process.env.EMAIL_HOST || '',
+    port: parseInt(process.env.EMAIL_PORT || '587', 10),
+    secure: process.env.EMAIL_SECURE === 'true',
+    user: process.env.EMAIL_USER || '',
+    pass: process.env.EMAIL_PASS || '',
+    fromEmail: process.env.EMAIL_FROM || 'noreply@stockmaster.com',
+    fromName: process.env.EMAIL_FROM_NAME || 'StockMaster',
+  },
   logging: {
     level: process.env.LOG_LEVEL || 'info',
   },
