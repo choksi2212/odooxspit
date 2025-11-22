@@ -131,8 +131,8 @@ export class OperationService {
       include: {
         warehouseFrom: { select: { id: true, name: true, shortCode: true } },
         warehouseTo: { select: { id: true, name: true, shortCode: true } },
-        locationFrom: { select: { id: true, name: true, shortCode: true } },
-        locationTo: { select: { id: true, name: true, shortCode: true } },
+        locationFrom: { select: { id: true, name: true, shortCode: true, warehouseId: true } },
+        locationTo: { select: { id: true, name: true, shortCode: true, warehouseId: true } },
         createdBy: { select: { id: true, name: true, loginId: true } },
         responsible: { select: { id: true, name: true, loginId: true } },
         items: {
