@@ -13,6 +13,7 @@ interface AuthStore {
   signup: (data: { loginId: string; email: string; password: string; name: string }) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  setUser: (user: User) => void;
   clearError: () => void;
 }
 
@@ -91,6 +92,12 @@ export const useAuth = create<AuthStore>((set) => ({
       auth.clear();
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
+  },
+
+  setUser: (user: User) => {
+    // Update user in both Zustand store and localStorage
+    auth.setUser(user, apiClient.getAccessToken() || '');
+    set({ user });
   },
 
   clearError: () => set({ error: null }),

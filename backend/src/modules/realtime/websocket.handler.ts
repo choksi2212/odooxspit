@@ -76,16 +76,18 @@ export function setupWebSocketHandler(fastify: FastifyInstance) {
 
     fastify.log.info(`WebSocket client connected: ${clientId}${userId ? ` (user: ${userId})` : ''}`);
 
-    // Send welcome message
-    socket.send(
-      JSON.stringify({
-        type: 'connected',
-        payload: {
-          clientId,
-          message: 'Connected to StockMaster WebSocket',
-        },
-      })
-    );
+    // Send welcome message after socket is ready
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(
+        JSON.stringify({
+          type: 'connected',
+          payload: {
+            clientId,
+            message: 'Connected to StockMaster WebSocket',
+          },
+        })
+      );
+    }
 
     // Handle incoming messages
     socket.on('message', (data: Buffer) => {
@@ -140,12 +142,14 @@ function handleClientMessage(
         message.topics.forEach((topic) => client.topics.add(topic));
         fastify.log.info({ clientId, topics: message.topics }, 'Client subscribed to topics');
         
-        client.socket.send(
-          JSON.stringify({
-            type: 'subscribed',
-            payload: { topics: Array.from(client.topics) },
-          })
-        );
+        if (client.socket.readyState === WebSocket.OPEN) {
+          client.socket.send(
+            JSON.stringify({
+              type: 'subscribed',
+              payload: { topics: Array.from(client.topics) },
+            })
+          );
+        }
       }
       break;
 
@@ -154,17 +158,21 @@ function handleClientMessage(
         message.topics.forEach((topic) => client.topics.delete(topic));
         fastify.log.info({ clientId, topics: message.topics }, 'Client unsubscribed from topics');
         
-        client.socket.send(
-          JSON.stringify({
-            type: 'unsubscribed',
-            payload: { topics: Array.from(client.topics) },
-          })
-        );
+        if (client.socket.readyState === WebSocket.OPEN) {
+          client.socket.send(
+            JSON.stringify({
+              type: 'unsubscribed',
+              payload: { topics: Array.from(client.topics) },
+            })
+          );
+        }
       }
       break;
 
     case 'ping':
-      client.socket.send(JSON.stringify({ type: 'pong', payload: { timestamp: Date.now() } }));
+      if (client.socket.readyState === WebSocket.OPEN) {
+        client.socket.send(JSON.stringify({ type: 'pong', payload: { timestamp: Date.now() } }));
+      }
       break;
 
     default:
