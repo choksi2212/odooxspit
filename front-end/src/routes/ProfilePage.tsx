@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,12 @@ export default function ProfilePage() {
     name: user?.name || '',
     email: user?.email || '',
   });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,28 +199,81 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              toast.info('Password change functionality coming soon');
+              
+              if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+                toast.error('Please fill in all password fields');
+                return;
+              }
+              
+              if (passwordData.newPassword !== passwordData.confirmPassword) {
+                toast.error('New passwords do not match');
+                return;
+              }
+              
+              if (passwordData.newPassword.length < 8) {
+                toast.error('New password must be at least 8 characters long');
+                return;
+              }
+              
+              try {
+                setIsChangingPassword(true);
+                await apiClient.changePassword({
+                  currentPassword: passwordData.currentPassword,
+                  newPassword: passwordData.newPassword,
+                });
+                toast.success('Password changed successfully!');
+                setPasswordData({
+                  currentPassword: '',
+                  newPassword: '',
+                  confirmPassword: '',
+                });
+              } catch (error: any) {
+                toast.error(error.message || 'Failed to change password');
+              } finally {
+                setIsChangingPassword(false);
+              }
             }}
             className="space-y-4"
           >
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current Password</Label>
-                <Input id="currentPassword" type="password" placeholder="••••••••" />
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={passwordData.currentPassword}
+                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
-                <Input id="newPassword" type="password" placeholder="••••••••" />
+                <Input
+                  id="newPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input id="confirmPassword" type="password" placeholder="••••••••" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                  required
+                />
               </div>
             </div>
-            <Button type="submit" variant="outline">
-              Update Password
+            <Button type="submit" variant="outline" disabled={isChangingPassword}>
+              {isChangingPassword ? 'Updating...' : 'Update Password'}
             </Button>
           </form>
         </CardContent>

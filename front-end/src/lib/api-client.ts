@@ -82,6 +82,13 @@ class ApiClient {
     });
   }
 
+  async changePassword(data: { currentPassword: string; newPassword: string }) {
+    return this.request<{ message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   async requestOtp(email: string) {
     return this.request<void>('/auth/request-otp', {
       method: 'POST',
@@ -193,7 +200,8 @@ class ApiClient {
   }
 
   async getOperation(id: string) {
-    return this.request<any>(`/operations/${id}`);
+    const response = await this.request<{ operation: any }>(`/operations/${id}`);
+    return response.operation; // Extract operation from wrapper
   }
 
   async createReceipt(data: any) {

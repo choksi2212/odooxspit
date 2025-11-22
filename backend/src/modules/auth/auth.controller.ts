@@ -226,6 +226,22 @@ export class AuthController {
   }
 
   /**
+   * Change password
+   */
+  async changePassword(
+    request: FastifyRequest<{
+      Body: { currentPassword: string; newPassword: string };
+    }>,
+    reply: FastifyReply
+  ) {
+    const user = request.user as AuthUser;
+    const { currentPassword, newPassword } = request.body;
+    const result = await authService.changePassword(user.id, currentPassword, newPassword);
+
+    return reply.send(result);
+  }
+
+  /**
    * Logout (revoke refresh token)
    */
   async logout(request: FastifyRequest, reply: FastifyReply) {

@@ -227,6 +227,42 @@ export class AuthService {
   }
 
   /**
+   * Change password for authenticated user
+   */
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User');
+    }
+
+    // Verify current password
+    const isValid = await argon2.verify(user.passwordHash, currentPassword);
+
+    if (!isValid) {
+      throw new BadRequestError('Current password is incorrect');
+    }
+
+    // Hash new password
+    const passwordHash = await argon2.hash(newPassword, {
+      type: argon2.argon2id,
+      memoryCost: 65536,
+      timeCost: 3,
+      parallelism: 4,
+    });
+
+    // Update password
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    return { message: 'Password changed successfully' };
+  }
+
+  /**
    * Store refresh token (hashed)
    */
   async storeRefreshToken(userId: string, token: string, expiresAt: Date) {

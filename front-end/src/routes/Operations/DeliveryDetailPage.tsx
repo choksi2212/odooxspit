@@ -162,14 +162,11 @@ export default function DeliveryDetailPage() {
     }
 
     const payload = {
-      header: {
-        contact: formData.contact,
-        responsible: formData.responsible,
-        scheduleDate: formData.scheduleDate,
-        deliveryAddress: formData.deliveryAddress,
-        warehouseId: formData.warehouseId,
-        locationId: formData.locationId,
-      },
+      locationFromId: formData.locationId,
+      warehouseFromId: formData.warehouseId,
+      contactName: formData.contact,
+      scheduleDate: formData.scheduleDate,
+      deliveryAddress: formData.deliveryAddress,
       items: productLines.map(line => ({
         productId: line.productId,
         quantity: line.quantity,

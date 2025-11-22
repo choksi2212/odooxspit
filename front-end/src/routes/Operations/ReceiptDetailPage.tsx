@@ -146,13 +146,10 @@ export default function ReceiptDetailPage() {
     }
 
     const payload = {
-      header: {
-        contact: formData.contact,
-        responsible: formData.responsible,
-        scheduleDate: formData.scheduleDate,
-        warehouseId: formData.warehouseId,
-        locationId: formData.locationId,
-      },
+      locationToId: formData.locationId,
+      warehouseToId: formData.warehouseId,
+      contactName: formData.contact,
+      scheduleDate: formData.scheduleDate,
       items: productLines.map(line => ({
         productId: line.productId,
         quantity: line.quantity,
