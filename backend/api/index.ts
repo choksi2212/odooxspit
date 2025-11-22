@@ -4,11 +4,10 @@
  */
 import { buildApp } from '../src/app.js';
 import prisma from '../src/db/client.js';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 let app: any = null;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   // Build app on first request (cold start)
   if (!app) {
     app = await buildApp();
